@@ -1,8 +1,6 @@
 package small_square_microservice.small_square.infrastructure.persistence.jpa.adapter;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
@@ -18,7 +16,6 @@ public class DishJpaAdapter implements IDishPersistencePort {
     private final IDishRepository dishRepository;
     private final IDishEntityMapper dishEntityMapper;
 
-    private static final Logger logger = LoggerFactory.getLogger(DishJpaAdapter.class);
 
     @Override
     public Dish createDish(Dish dish) {

@@ -16,7 +16,6 @@ import small_square_microservice.small_square.application.dto.restaurantdto.Rest
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.handler.restauranthandler.IRestaurantHandler;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

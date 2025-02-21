@@ -1,7 +1,6 @@
 package small_square_microservice.small_square.infrastructure.persistence.jpa.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
