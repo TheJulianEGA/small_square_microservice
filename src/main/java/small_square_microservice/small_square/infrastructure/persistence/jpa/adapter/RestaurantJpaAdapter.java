@@ -8,8 +8,8 @@ import small_square_microservice.small_square.domain.spi.IRestaurantPersistenceP
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.restaurantmapper.IRestaurantEntityMapper;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IRestaurantRepository;
+import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
-import static small_square_microservice.small_square.infrastructure.util.InfrastructureConstants.RESTAURANT_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -31,6 +31,6 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
 
         return restaurantRepository.findById(id)
                 .map(restaurantEntityMapper::toModel)
-                .orElseThrow( () -> new RestaurantNotFundException(RESTAURANT_NOT_FOUND));
+                .orElseThrow( () -> new RestaurantNotFundException(InfrastructureConstants.RESTAURANT_NOT_FOUND));
     }
 }

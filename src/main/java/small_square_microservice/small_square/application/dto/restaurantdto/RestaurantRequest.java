@@ -4,11 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import small_square_microservice.small_square.application.util.ApplicationConstants;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class RestaurantRequest {
 
     @NotBlank(message = ApplicationConstants.NAME_NOT_BLANK)
