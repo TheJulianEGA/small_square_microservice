@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
 import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 
@@ -15,6 +16,11 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CategoryNotFundException.class)
+    public ResponseEntity<String> cartEmptyException(CategoryNotFundException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 
     @ExceptionHandler(RestaurantNotFundException.class)
     public ResponseEntity<String> cartEmptyException(RestaurantNotFundException ex) {

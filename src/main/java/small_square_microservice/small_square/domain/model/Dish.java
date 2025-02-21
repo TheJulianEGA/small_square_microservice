@@ -28,6 +28,8 @@ public class Dish {
         this.orderDishes = orderDishes;
     }
 
+    public Dish(){}
+
     public Long getId() {
         return id;
     }
