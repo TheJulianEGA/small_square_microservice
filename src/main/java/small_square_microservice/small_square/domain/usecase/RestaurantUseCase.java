@@ -1,6 +1,7 @@
 package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
@@ -29,4 +30,5 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         return restaurantPersistencePort.registerRestaurant(restaurant);
 
     }
+
 }

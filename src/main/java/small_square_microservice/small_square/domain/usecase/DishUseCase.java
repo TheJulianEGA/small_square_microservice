@@ -2,6 +2,7 @@ package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
+import small_square_microservice.small_square.domain.exception.DishNotFundException;
 import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
@@ -48,4 +49,24 @@ public class DishUseCase implements IDishServicePort {
 
         return dishPersistencePort.createDish(dish);
     }
+
+    @Override
+    public Dish updatedDishById(Long id, Dish dish) {
+
+        Dish dishToUpdate = validateDishExists(id);
+
+        dishToUpdate.setDescription(dish.getDescription());
+        dishToUpdate.setPrice(dish.getPrice());
+
+        return dishPersistencePort.updateDish(dishToUpdate);
+    }
+
+    private Dish validateDishExists(Long id) {
+        Dish dish = dishPersistencePort.getDishById(id);
+        if (dish == null) {
+            throw new DishNotFundException(DomainConstants.DISH_NOT_FOUND);
+        }
+        return dish;
+    }
+
 }

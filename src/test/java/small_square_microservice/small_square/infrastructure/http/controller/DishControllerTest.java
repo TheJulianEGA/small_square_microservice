@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import small_square_microservice.small_square.application.dto.dishdto.DishRequest;
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
+import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
 import small_square_microservice.small_square.application.handler.dishhandler.IDishHandler;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +36,7 @@ class DishControllerTest {
 
     private DishResponse dishResponse;
     private DishRequest dishRequest;
+    private DishUpdateRequest dishUpdateRequest;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +47,8 @@ class DishControllerTest {
 
         dishResponse = new DishResponse();
         dishRequest = new DishRequest();
+        dishUpdateRequest = new DishUpdateRequest();
+
 
     }
 
@@ -70,5 +74,25 @@ class DishControllerTest {
 
         verify(dishHandler, times(1)).createDish(any(DishRequest.class));
 
+    }
+
+    @Test
+    void updateDish_ShouldReturnUpdatedDish_WhenRequestIsValid() throws Exception {
+
+        dishUpdateRequest.setPrice(1500.0);
+        dishUpdateRequest.setDescription("Updated Description");
+        Long dishId = 1L;
+
+        when(dishHandler.updateDish(eq(dishId), any(DishUpdateRequest.class)))
+                .thenReturn(dishResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/small_square/dish/update/{id}", dishId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dishUpdateRequest)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(dishResponse)));
+
+        verify(dishHandler, times(1)).updateDish(eq(dishId), any(DishUpdateRequest.class));
     }
 }

@@ -6,4 +6,8 @@ public interface IDishPersistencePort {
 
     Dish createDish(Dish dish);
 
+    Dish getDishById(Long id);
+
+    Dish updateDish(Dish dish);
+
 }

@@ -7,13 +7,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import small_square_microservice.small_square.application.dto.dishdto.DishRequest;
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
+import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
 import small_square_microservice.small_square.application.mapper.dishmapper.IDishMapper;
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.model.Dish;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class DishHandlerTest {
 
@@ -30,6 +30,7 @@ class DishHandlerTest {
     private Dish dish;
     private Dish createdDish;
     private DishResponse dishResponse;
+    private DishUpdateRequest dishUpdateRequest;
 
     @BeforeEach
     void setUp() {
@@ -40,6 +41,7 @@ class DishHandlerTest {
         dish = new Dish();
         createdDish = new Dish();
         dishResponse = new DishResponse();
+        dishUpdateRequest = new DishUpdateRequest();
     }
 
     @Test
@@ -53,8 +55,28 @@ class DishHandlerTest {
 
         assertNotNull(result);
         assertEquals(dishResponse, result);
-        verify(dishMapper).toModel(dishRequest);
-        verify(dishServicePort).createDish(dish);
-        verify(dishMapper).toResponse(createdDish);
+        verify(dishMapper, times(1)).toModel(dishRequest);
+        verify(dishServicePort, times(1)).createDish(dish);
+        verify(dishMapper, times(1)).toResponse(createdDish);
+    }
+
+    @Test
+    void updateDish_ShouldReturnDishResponse_WhenValidRequest() {
+        Long dishId = 1L;
+        Dish dishToUpdate = new Dish();
+        Dish updatedDish = new Dish();
+        DishResponse expectedResponse = new DishResponse();
+
+        when(dishMapper.updatedDishRequestToModel(dishUpdateRequest)).thenReturn(dishToUpdate);
+        when(dishServicePort.updatedDishById(dishId, dishToUpdate)).thenReturn(updatedDish);
+        when(dishMapper.toResponse(updatedDish)).thenReturn(expectedResponse);
+
+        DishResponse result = dishHandler.updateDish(dishId, dishUpdateRequest);
+
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        verify(dishMapper).updatedDishRequestToModel(dishUpdateRequest);
+        verify(dishServicePort).updatedDishById(dishId, dishToUpdate);
+        verify(dishMapper).toResponse(updatedDish);
     }
 }
