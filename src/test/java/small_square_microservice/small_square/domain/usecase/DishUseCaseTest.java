@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
+import small_square_microservice.small_square.domain.exception.DishNotFundException;
 import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
@@ -99,5 +100,44 @@ class DishUseCaseTest {
         verify(restaurantPersistencePort).getRestaurantById(1L);
         verify(categoryPersistencePort).getCategoryById(2L);
         verify(dishPersistencePort, never()).createDish(any(Dish.class));
+    }
+
+    @Test
+    void updatedDishById_ShouldReturnUpdatedDish_WhenDishExists() {
+        Long dishId = 1L;
+        Dish existingDish = new Dish();
+        existingDish.setId(dishId);
+        existingDish.setDescription("Old Description");
+        existingDish.setPrice(1000.0);
+
+        Dish updatedDish = new Dish();
+        updatedDish.setDescription("New Description");
+        updatedDish.setPrice(1500.0);
+
+        when(dishPersistencePort.getDishById(dishId)).thenReturn(existingDish);
+        when(dishPersistencePort.updateDish(any(Dish.class))).thenReturn(existingDish);
+
+        Dish result = dishUseCase.updatedDishById(dishId, updatedDish);
+
+        assertNotNull(result);
+        assertEquals("New Description", result.getDescription());
+        assertEquals(1500.0, result.getPrice());
+        verify(dishPersistencePort).getDishById(dishId);
+        verify(dishPersistencePort).updateDish(existingDish);
+    }
+
+    @Test
+    void updatedDishById_ShouldThrowException_WhenDishDoesNotExist() {
+        Long dishId = 1L;
+        Dish updatedDish = new Dish();
+        updatedDish.setDescription("New Description");
+        updatedDish.setPrice(1500.0);
+
+        when(dishPersistencePort.getDishById(dishId))
+                .thenThrow(new DishNotFundException(DomainConstants.DISH_NOT_FOUND));
+
+        assertThrows(DishNotFundException.class, () -> dishUseCase.updatedDishById(dishId, updatedDish));
+        verify(dishPersistencePort).getDishById(dishId);
+        verify(dishPersistencePort, never()).updateDish(any(Dish.class));
     }
 }
