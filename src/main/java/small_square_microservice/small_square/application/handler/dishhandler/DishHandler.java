@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import small_square_microservice.small_square.application.dto.dishdto.DishRequest;
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
+import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
 import small_square_microservice.small_square.application.mapper.dishmapper.IDishMapper;
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.model.Dish;
@@ -24,5 +25,15 @@ public class DishHandler implements IDishHandler{
         Dish createdDish = dishServicePort.createDish(dish);
 
         return dishMapper.toResponse(createdDish);
+    }
+
+    @Override
+    public DishResponse updateDish(Long id, DishUpdateRequest dishUpdateRequest) {
+
+        Dish dish = dishMapper.updatedDishRequestToModel(dishUpdateRequest);
+
+        Dish updatedDish = dishServicePort.updatedDishById(id,dish);
+
+        return dishMapper.toResponse(updatedDish);
     }
 }

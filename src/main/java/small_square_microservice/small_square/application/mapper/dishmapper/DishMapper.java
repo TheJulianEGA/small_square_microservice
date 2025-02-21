@@ -3,6 +3,7 @@ package small_square_microservice.small_square.application.mapper.dishmapper;
 import org.springframework.stereotype.Component;
 import small_square_microservice.small_square.application.dto.dishdto.DishRequest;
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
+import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Restaurant;
@@ -41,11 +42,26 @@ public class DishMapper implements IDishMapper{
                 dish.getId(),
                 dish.getName(),
                 dish.getDescription(),
-                dish.getPrice().intValue(),
+                dish.getPrice(),
                 dish.getImageUrl(),
                 dish.getActive(),
                 dish.getCategory().getId(),
                 dish.getRestaurant().getId()
+        );
+    }
+
+    @Override
+    public Dish updatedDishRequestToModel(DishUpdateRequest dishUpdateRequest) {
+        return new Dish(
+                null,
+                null,
+                null,
+                dishUpdateRequest.getDescription(),
+                dishUpdateRequest.getPrice(),
+                null,
+                null,
+                true,
+                new ArrayList<>()
         );
     }
 

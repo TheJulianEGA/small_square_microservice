@@ -14,7 +14,7 @@ public class DishResponse {
     private Long id;
     private String name;
     private String description;
-    private Integer price;
+    private Double price;
     private String imageUrl;
     private Boolean isActive;
     private Long categoryId;

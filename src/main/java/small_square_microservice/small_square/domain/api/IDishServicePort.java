@@ -6,4 +6,6 @@ public interface IDishServicePort {
 
     Dish createDish(Dish dish);
 
+    Dish updatedDishById(Long id, Dish dish);
+
 }

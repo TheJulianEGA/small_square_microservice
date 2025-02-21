@@ -6,6 +6,7 @@ public class InfrastructureConstants {
     public static final String USER_SERVICE_URL = "http://localhost:8080";
     public static final String RESTAURANT_NOT_FOUND = "Restaurant not found";
     public static final String CATEGORY_NOT_FOUND = "Category not found";
+    public static final String DISH_NOT_FOUND = "Dish not found";
 
     private InfrastructureConstants() {
     }
