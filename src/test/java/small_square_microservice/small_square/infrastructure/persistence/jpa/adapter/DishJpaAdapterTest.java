@@ -2,9 +2,10 @@ package small_square_microservice.small_square.infrastructure.persistence.jpa.ad
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.DishNotFundException;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.DishEntity;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class DishJpaAdapterTest {
 
     @Mock
@@ -33,8 +35,6 @@ class DishJpaAdapterTest {
     @BeforeEach
     void setUp() {
 
-        MockitoAnnotations.openMocks(this);
-
         dish = new Dish();
 
         dishEntity = new DishEntity();
@@ -46,7 +46,7 @@ class DishJpaAdapterTest {
 
         dish.setId(1L);
         dish.setName("Pasta");
-        dish.setActive(true);
+        dish.setIsActive(true);
 
         dishEntity.setId(1L);
         dishEntity.setName("Pasta");
@@ -61,7 +61,7 @@ class DishJpaAdapterTest {
         assertNotNull(result);
         assertEquals(dish.getId(), result.getId());
         assertEquals(dish.getName(), result.getName());
-        assertTrue(result.getActive());
+        assertTrue(result.getIsActive());
 
         verify(dishEntityMapper).toEntity(dish);
         verify(dishRepository).save(dishEntity);
@@ -106,7 +106,7 @@ class DishJpaAdapterTest {
     void updateDish_ShouldReturnUpdatedDish_WhenSuccessfullyUpdated() {
         dish.setId(1L);
         dish.setName("Updated Pasta");
-        dish.setActive(true);
+        dish.setIsActive(true);
 
         dishEntity.setId(1L);
         dishEntity.setName("Updated Pasta");
@@ -121,7 +121,7 @@ class DishJpaAdapterTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Updated Pasta", result.getName());
-        assertTrue(result.getActive());
+        assertTrue(result.getIsActive());
 
         verify(dishEntityMapper).toEntity(dish);
         verify(dishRepository).save(dishEntity);

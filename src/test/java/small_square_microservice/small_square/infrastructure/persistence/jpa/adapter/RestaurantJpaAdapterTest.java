@@ -2,9 +2,10 @@ package small_square_microservice.small_square.infrastructure.persistence.jpa.ad
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class RestaurantJpaAdapterTest {
 
     @Mock
@@ -34,8 +36,6 @@ class RestaurantJpaAdapterTest {
 
     @BeforeEach
     void setUp() {
-
-        MockitoAnnotations.openMocks(this);
 
         restaurant = new Restaurant();
         restaurantEntity = new RestaurantEntity();

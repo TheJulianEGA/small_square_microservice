@@ -1,16 +1,17 @@
 package small_square_microservice.small_square.infrastructure.persistence.jpa.adapter;
 
 import feign.FeignException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.infrastructure.http.feign.IUserFeignClient;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class UserFeignAdapterTest {
 
     @Mock
@@ -21,10 +22,6 @@ class UserFeignAdapterTest {
 
     private final Long userId = 1L;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void existsUserWithOwnerRole_ShouldReturnTrue_WhenUserExists() {

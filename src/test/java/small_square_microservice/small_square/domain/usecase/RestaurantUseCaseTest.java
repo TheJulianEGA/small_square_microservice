@@ -1,10 +1,10 @@
 package small_square_microservice.small_square.domain.usecase;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
@@ -13,7 +13,7 @@ import small_square_microservice.small_square.domain.util.DomainConstants;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@ExtendWith(MockitoExtension.class)
 class RestaurantUseCaseTest {
 
     @InjectMocks
@@ -25,10 +25,6 @@ class RestaurantUseCaseTest {
     @Mock
     private IUserFeignPersistencePort userFeignPersistencePort;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void registerRestaurant_ShouldReturnRegisteredRestaurant_WhenOwnerIsValid() {

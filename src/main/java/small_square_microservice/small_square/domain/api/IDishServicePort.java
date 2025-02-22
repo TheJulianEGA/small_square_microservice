@@ -8,4 +8,5 @@ public interface IDishServicePort {
 
     Dish updatedDishById(Long id, Dish dish);
 
+    Dish toggleDishStatus(Long id);
 }

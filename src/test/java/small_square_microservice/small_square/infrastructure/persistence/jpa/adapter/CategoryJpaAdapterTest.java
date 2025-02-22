@@ -2,9 +2,10 @@ package small_square_microservice.small_square.infrastructure.persistence.jpa.ad
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.CategoryEntity;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class CategoryJpaAdapterTest {
 
     @Mock
@@ -33,7 +35,6 @@ class CategoryJpaAdapterTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
 
         category = new Category();
         category.setId(categoryId);

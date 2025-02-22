@@ -49,7 +49,6 @@ class DishControllerTest {
         dishRequest = new DishRequest();
         dishUpdateRequest = new DishUpdateRequest();
 
-
     }
 
     @Test
@@ -94,5 +93,20 @@ class DishControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(dishResponse)));
 
         verify(dishHandler, times(1)).updateDish(eq(dishId), any(DishUpdateRequest.class));
+    }
+
+    @Test
+    void toggleDishStatus_ShouldReturnUpdatedDish_WhenDishExists() throws Exception {
+        Long dishId = 1L;
+
+        when(dishHandler.toggleDishStatus((dishId))).thenReturn(dishResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/small_square/dish/toggle-status/{id}", dishId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(dishResponse)));
+
+        verify(dishHandler, times(1)).toggleDishStatus((dishId));
     }
 }

@@ -54,7 +54,7 @@ public class DishEntityMapper implements IDishEntityMapper {
         entity.setPrice(model.getPrice());
         entity.setRestaurant(restaurantEntity);
         entity.setImageUrl(model.getImageUrl());
-        entity.setIsActive(model.getActive());
+        entity.setIsActive(model.getIsActive());
 
         return entity;
     }

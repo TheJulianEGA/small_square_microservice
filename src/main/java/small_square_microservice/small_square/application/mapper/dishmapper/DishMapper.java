@@ -44,7 +44,7 @@ public class DishMapper implements IDishMapper{
                 dish.getDescription(),
                 dish.getPrice(),
                 dish.getImageUrl(),
-                dish.getActive(),
+                dish.getIsActive(),
                 dish.getCategory().getId(),
                 dish.getRestaurant().getId()
         );
