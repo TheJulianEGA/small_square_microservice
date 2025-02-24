@@ -45,4 +45,9 @@ public class RestaurantEntity {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderEntity> orders;
 
+    @ElementCollection
+    @CollectionTable(name = "restaurant_employees", joinColumns = @JoinColumn(name = "restaurant_id"))
+    @Column(name = "employee_id")
+    private List<Long> employeeIds;
+
 }

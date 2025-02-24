@@ -17,6 +17,7 @@ public class RestaurantEntityMapper implements IRestaurantEntityMapper{
         entity.setPhone(restaurant.getPhone());
         entity.setLogoUrl(restaurant.getLogoUrl());
         entity.setNit(restaurant.getNit());
+        entity.setEmployeeIds(restaurant.getEmployeeIds());
         return entity;
     }
 
@@ -30,6 +31,7 @@ public class RestaurantEntityMapper implements IRestaurantEntityMapper{
         restaurant.setPhone(entity.getPhone());
         restaurant.setLogoUrl(entity.getLogoUrl());
         restaurant.setNit(entity.getNit());
+        restaurant.setEmployeeIds(entity.getEmployeeIds());
         return restaurant;
     }
 }

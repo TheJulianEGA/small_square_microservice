@@ -4,4 +4,6 @@ public interface IUserFeignPersistencePort {
 
     boolean existsUserWithOwnerRole(Long userId);
 
+    boolean existsUserWithEmployeeRole(Long userId);
+
 }

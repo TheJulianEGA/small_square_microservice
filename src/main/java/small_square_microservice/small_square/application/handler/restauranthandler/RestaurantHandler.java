@@ -2,11 +2,15 @@ package small_square_microservice.small_square.application.handler.restauranthan
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
+import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
+import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
 import small_square_microservice.small_square.application.mapper.restaurantmapper.IRestaurantMapper;
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
+import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.util.Paginated;
 
@@ -46,5 +50,18 @@ public class RestaurantHandler implements IRestaurantHandler {
                 paginatedRestaurants.getTotalPages()
         );
     }
+
+    @Override
+    public RestaurantResponse updateRestaurantEmployees(Long restaurantId, RegisterEmployeeToRestaurantRequest request) {
+
+        Restaurant restaurant = restaurantMapper.employeeToRestaurantToModel(request);
+
+        Restaurant updateRestaurant = restaurantServicePort.updateRestaurantEmployees(restaurantId,restaurant);
+
+        return restaurantMapper.toResponse(updateRestaurant);
+    }
+
+
+
 
 }

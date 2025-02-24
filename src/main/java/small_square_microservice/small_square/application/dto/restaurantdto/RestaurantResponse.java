@@ -3,6 +3,8 @@ package small_square_microservice.small_square.application.dto.restaurantdto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 public class RestaurantResponse {
@@ -20,5 +22,7 @@ public class RestaurantResponse {
     private String logoUrl;
 
     private String nit;
+
+    private List<Long> employeeIds;
 
 }

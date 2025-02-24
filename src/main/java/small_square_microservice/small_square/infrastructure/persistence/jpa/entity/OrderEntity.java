@@ -32,7 +32,7 @@ public class OrderEntity {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "chef_id", nullable = false)
+    @Column(name = "chef_id")
     private Long chefId;
 
     @ManyToOne

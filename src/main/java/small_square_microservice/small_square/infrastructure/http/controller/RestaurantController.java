@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
@@ -75,6 +76,16 @@ public class RestaurantController {
         Paginated<RestaurantResponseForPagination> paginatedRestaurants
                 = restaurantHandler.getAllRestaurants(page, size);
         return ResponseEntity.ok(paginatedRestaurants);
+    }
+
+    @PreAuthorize(InfrastructureConstants.ROLE_OWNER)
+    @PutMapping("/update-employees/{restaurantId}")
+    public ResponseEntity<RestaurantResponse> updateRestaurantEmployees(
+            @PathVariable Long restaurantId,
+            @Valid @RequestBody RegisterEmployeeToRestaurantRequest request) {
+
+        RestaurantResponse response = restaurantHandler.updateRestaurantEmployees(restaurantId,request);
+        return ResponseEntity.ok(response);
     }
 
 }

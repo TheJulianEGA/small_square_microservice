@@ -59,4 +59,12 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
                 restaurantPage.getTotalPages()
         );
     }
+
+    @Override
+    public Restaurant updateRestaurant(Restaurant restaurantToUpdate) {
+        RestaurantEntity restaurantEntity = restaurantRepository.save(restaurantEntityMapper
+                .toEntity(restaurantToUpdate));
+
+        return restaurantEntityMapper.toModel(restaurantEntity);
+    }
 }

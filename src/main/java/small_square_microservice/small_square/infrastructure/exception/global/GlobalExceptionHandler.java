@@ -15,28 +15,33 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(OrderInProgressException.class)
+    public ResponseEntity<String> orderInProgressException(OrderInProgressException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(InvalidPaginationException.class)
-    public ResponseEntity<String> cartEmptyException(InvalidPaginationException ex) {
+    public ResponseEntity<String> i(InvalidPaginationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(DishNotFundException.class)
-    public ResponseEntity<String> cartEmptyException(DishNotFundException ex) {
+    public ResponseEntity<String> dishNotFundException(DishNotFundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(CategoryNotFundException.class)
-    public ResponseEntity<String> cartEmptyException(CategoryNotFundException ex) {
+    public ResponseEntity<String> categoryNotFundException(CategoryNotFundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(RestaurantNotFundException.class)
-    public ResponseEntity<String> cartEmptyException(RestaurantNotFundException ex) {
+    public ResponseEntity<String> restaurantNotFundException(RestaurantNotFundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(UserIsNotOwnerException.class)
-    public ResponseEntity<String> cartEmptyException(UserIsNotOwnerException ex) {
+    public ResponseEntity<String> userIsNotOwnerException(UserIsNotOwnerException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
