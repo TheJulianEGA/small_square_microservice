@@ -12,6 +12,9 @@ import small_square_microservice.small_square.application.dto.dishdto.DishUpdate
 import small_square_microservice.small_square.application.mapper.dishmapper.IDishMapper;
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.model.Dish;
+import small_square_microservice.small_square.domain.util.Paginated;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +35,8 @@ class DishHandlerTest {
     private Dish createdDish;
     private DishResponse dishResponse;
     private DishUpdateRequest dishUpdateRequest;
+    private Paginated<Dish> paginatedDishes;
+    private Paginated<DishResponse> expectedPaginatedDishes;
 
     @BeforeEach
     void setUp() {
@@ -40,6 +45,12 @@ class DishHandlerTest {
         createdDish = new Dish();
         dishResponse = new DishResponse();
         dishUpdateRequest = new DishUpdateRequest();
+
+        List<Dish> dishList = List.of(dish);
+        List<DishResponse> dishResponseList = List.of(dishResponse);
+
+        paginatedDishes = new Paginated<>(dishList, 0, 10, 1L, 1);
+        expectedPaginatedDishes = new Paginated<>(dishResponseList, 0, 10, 1L, 1);
     }
 
     @Test
@@ -93,4 +104,29 @@ class DishHandlerTest {
         verify(dishServicePort, times(1)).toggleDishStatus(dishId);
         verify(dishMapper, times(1)).toResponse(toggledDish);
     }
+
+    @Test
+    void getDishesByRestaurant_ShouldReturnPaginatedDishResponses_WhenValidRequest() {
+        Long restaurantId = 1L;
+        int page = 0;
+        int size = 10;
+        Long categoryId = 2L;
+
+        when(dishServicePort.getDishesByRestaurant(restaurantId, page, size, categoryId))
+                .thenReturn(paginatedDishes);
+        when(dishMapper.toResponse(dish)).thenReturn(dishResponse);
+
+        Paginated<DishResponse> result = dishHandler.getDishesByRestaurant(restaurantId, page, size, categoryId);
+
+        assertNotNull(result);
+        assertEquals(expectedPaginatedDishes.getContent(), result.getContent());
+        assertEquals(expectedPaginatedDishes.getPageNumber(), result.getPageNumber());
+        assertEquals(expectedPaginatedDishes.getPageSize(), result.getPageSize());
+        assertEquals(expectedPaginatedDishes.getTotalElements(), result.getTotalElements());
+        assertEquals(expectedPaginatedDishes.getTotalPages(), result.getTotalPages());
+
+        verify(dishServicePort, times(1)).getDishesByRestaurant(restaurantId, page, size, categoryId);
+        verify(dishMapper, times(1)).toResponse(dish);
+    }
 }
+

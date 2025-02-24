@@ -16,6 +16,9 @@ import small_square_microservice.small_square.application.dto.dishdto.DishReques
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
 import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
 import small_square_microservice.small_square.application.handler.dishhandler.IDishHandler;
+import small_square_microservice.small_square.domain.util.Paginated;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -30,7 +33,6 @@ class DishControllerTest {
     private IDishHandler dishHandler;
 
     private MockMvc mockMvc;
-
 
     private ObjectMapper objectMapper;
 
@@ -109,4 +111,29 @@ class DishControllerTest {
 
         verify(dishHandler, times(1)).toggleDishStatus((dishId));
     }
+
+    @Test
+    void getDishesByRestaurant_ShouldReturnPaginatedDishes_WhenValidRequest() throws Exception {
+        Long restaurantId = 1L;
+        int page = 0;
+        int size = 10;
+        Long categoryId = 2L;
+
+        Paginated<DishResponse> paginatedDishes = new Paginated<>(
+                List.of(dishResponse), page, size, 1L, 1);
+        when(dishHandler.getDishesByRestaurant(restaurantId, page, size, categoryId)).thenReturn(paginatedDishes);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/small_square/dish/get_dishes_by_restaurantId" +
+                                "/{restaurantId}", restaurantId)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("categoryId", String.valueOf(categoryId))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(paginatedDishes)));
+
+        verify(dishHandler, times(1)).getDishesByRestaurant(restaurantId, page, size, categoryId);
+    }
 }
+
