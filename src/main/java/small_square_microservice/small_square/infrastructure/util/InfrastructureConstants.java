@@ -14,6 +14,7 @@ public class InfrastructureConstants {
     public static final int TOKEN_PREFIX_LENGTH = 7;
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String NO_AUTHENTICATED_USER_ID_FOUND = "No authenticated user id found";
+    public static final String ROLE_CUSTOMER = "hasRole('CUSTOMER')";
 
     private InfrastructureConstants() {
     }

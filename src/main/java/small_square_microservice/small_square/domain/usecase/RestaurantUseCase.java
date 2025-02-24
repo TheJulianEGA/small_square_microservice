@@ -6,6 +6,7 @@ import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.spi.IUserFeignPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
+import small_square_microservice.small_square.domain.util.Paginated;
 
 public class RestaurantUseCase implements IRestaurantServicePort {
 
@@ -18,7 +19,6 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         this.userFeignPersistencePort = userFeignPersistencePort;
     }
 
-
     @Override
     public Restaurant registerRestaurant(Restaurant restaurant) {
 
@@ -28,6 +28,11 @@ public class RestaurantUseCase implements IRestaurantServicePort {
 
         return restaurantPersistencePort.registerRestaurant(restaurant);
 
+    }
+
+    @Override
+    public Paginated<Restaurant> getAllRestaurants(int page, int size) {
+        return restaurantPersistencePort.getAllRestaurants(page, size);
     }
 
 }
