@@ -46,7 +46,6 @@ public class RestaurantController {
     public ResponseEntity<RestaurantResponse> createRestaurant(
             @Valid @RequestBody RestaurantRequest restaurantRequest) {
 
-
         RestaurantResponse restaurantResponse = restaurantHandler.registerRestaurant(restaurantRequest);
 
         return new ResponseEntity<>(restaurantResponse, HttpStatus.CREATED);
@@ -60,6 +59,8 @@ public class RestaurantController {
             @ApiResponse(responseCode = "200", description = "List of restaurants retrieved successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Paginated.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "403", description = "Forbidden - User lacks necessary permissions",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error",
