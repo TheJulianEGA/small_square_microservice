@@ -2,9 +2,10 @@ package small_square_microservice.small_square.application.handler.dishhandler;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.application.dto.dishdto.DishRequest;
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
 import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
@@ -14,7 +15,7 @@ import small_square_microservice.small_square.domain.model.Dish;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@ExtendWith(MockitoExtension.class)
 class DishHandlerTest {
 
     @Mock
@@ -34,9 +35,6 @@ class DishHandlerTest {
 
     @BeforeEach
     void setUp() {
-
-        MockitoAnnotations.openMocks(this);
-
         dishRequest = new DishRequest();
         dish = new Dish();
         createdDish = new Dish();
@@ -46,7 +44,6 @@ class DishHandlerTest {
 
     @Test
     void createDish_ShouldReturnDishResponse_WhenValidRequest() {
-
         when(dishMapper.toModel(dishRequest)).thenReturn(dish);
         when(dishServicePort.createDish(dish)).thenReturn(createdDish);
         when(dishMapper.toResponse(createdDish)).thenReturn(dishResponse);
@@ -75,8 +72,25 @@ class DishHandlerTest {
 
         assertNotNull(result);
         assertEquals(expectedResponse, result);
-        verify(dishMapper).updatedDishRequestToModel(dishUpdateRequest);
-        verify(dishServicePort).updatedDishById(dishId, dishToUpdate);
-        verify(dishMapper).toResponse(updatedDish);
+        verify(dishMapper, times(1)).updatedDishRequestToModel(dishUpdateRequest);
+        verify(dishServicePort, times(1)).updatedDishById(dishId, dishToUpdate);
+        verify(dishMapper, times(1)).toResponse(updatedDish);
+    }
+
+    @Test
+    void toggleDishStatus_ShouldReturnDishResponse_WhenValidId() {
+        Long dishId = 1L;
+        Dish toggledDish = new Dish();
+        DishResponse expectedResponse = new DishResponse();
+
+        when(dishServicePort.toggleDishStatus(dishId)).thenReturn(toggledDish);
+        when(dishMapper.toResponse(toggledDish)).thenReturn(expectedResponse);
+
+        DishResponse result = dishHandler.toggleDishStatus(dishId);
+
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        verify(dishServicePort, times(1)).toggleDishStatus(dishId);
+        verify(dishMapper, times(1)).toResponse(toggledDish);
     }
 }

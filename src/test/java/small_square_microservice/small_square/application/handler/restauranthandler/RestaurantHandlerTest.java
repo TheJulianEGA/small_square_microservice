@@ -1,10 +1,10 @@
 package small_square_microservice.small_square.application.handler.restauranthandler;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.mapper.restaurantmapper.IRestaurantMapper;
@@ -13,7 +13,7 @@ import small_square_microservice.small_square.domain.model.Restaurant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@ExtendWith(MockitoExtension.class)
 class RestaurantHandlerTest {
 
     @InjectMocks
@@ -25,10 +25,6 @@ class RestaurantHandlerTest {
     @Mock
     private IRestaurantServicePort restaurantServicePort;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void registerRestaurant_ShouldReturnRestaurantResponse_WhenValidRequest() {

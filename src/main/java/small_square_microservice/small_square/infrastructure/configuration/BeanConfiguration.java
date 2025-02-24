@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
+import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.ICategoryPersistencePort;
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
@@ -28,9 +29,15 @@ public class BeanConfiguration {
     public IDishServicePort dishServicePort (
             IRestaurantPersistencePort restaurantPersistencePort,
             IDishPersistencePort dishPersistencePort,
-            ICategoryPersistencePort categoryPersistencePort
+            ICategoryPersistencePort categoryPersistencePort,
+            IAuthenticationSecurityPort authenticationSecurityPort
     ) {
-        return new DishUseCase(dishPersistencePort,restaurantPersistencePort,categoryPersistencePort);
+        return new DishUseCase(
+                dishPersistencePort,
+                restaurantPersistencePort,
+                categoryPersistencePort,
+                authenticationSecurityPort
+        );
     }
 
 

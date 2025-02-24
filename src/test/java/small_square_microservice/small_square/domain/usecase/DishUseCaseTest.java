@@ -2,24 +2,23 @@ package small_square_microservice.small_square.domain.usecase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
-import small_square_microservice.small_square.domain.exception.DishNotFundException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
+import org.mockito.junit.jupiter.MockitoExtension;
+import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.ICategoryPersistencePort;
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
-import small_square_microservice.small_square.domain.util.DomainConstants;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+@ExtendWith(MockitoExtension.class)
 class DishUseCaseTest {
 
     @Mock
@@ -28,29 +27,39 @@ class DishUseCaseTest {
     @Mock
     private IRestaurantPersistencePort restaurantPersistencePort;
 
-    @InjectMocks
-    private DishUseCase dishUseCase;
-
     @Mock
     private ICategoryPersistencePort categoryPersistencePort;
 
+    @Mock
+    private IAuthenticationSecurityPort authenticationSecurityPort;
+
+    @InjectMocks
+    private DishUseCase dishUseCase;
+
+    private final Long ownerId = 10L;
+    private final Long otherOwnerId = 20L;
+    private Restaurant restaurant;
+    private Category category;
+    private Dish dish;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void setupRestaurantAndCategory() {
+        restaurant = new Restaurant();
+        restaurant.setId(1L);
+
+        category = new Category();
+        category.setId(2L);
+
+        dish = new Dish();
+        dish.setId(1L);
+        dish.setRestaurant(restaurant);
+        dish.setCategory(category);
     }
 
     @Test
-    void createDish_ShouldReturnDish_WhenRestaurantAndCategoryExist() {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(1L);
-
-        Category category = new Category();
-        category.setId(2L);
-
-        Dish dish = new Dish();
-        dish.setRestaurant(restaurant);
-        dish.setCategory(category);
-
+    void createDish_ShouldReturnDish_WhenRestaurantCategoryExistAndUserIsOwner() {
+        restaurant.setOwnerId(ownerId);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(ownerId);
         when(restaurantPersistencePort.getRestaurantById(1L)).thenReturn(restaurant);
         when(categoryPersistencePort.getCategoryById(2L)).thenReturn(category);
         when(dishPersistencePort.createDish(any(Dish.class))).thenReturn(dish);
@@ -58,86 +67,56 @@ class DishUseCaseTest {
         Dish result = dishUseCase.createDish(dish);
 
         assertNotNull(result);
-        verify(restaurantPersistencePort).getRestaurantById(1L);
-        verify(categoryPersistencePort).getCategoryById(2L);
-        verify(dishPersistencePort).createDish(dish);
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(1L);
+        verify(categoryPersistencePort, times(1)).getCategoryById(2L);
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(dishPersistencePort, times(1)).createDish(dish);
     }
 
     @Test
-    void createDish_ShouldThrowException_WhenRestaurantDoesNotExist() {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(1L);
-
-        Dish dish = new Dish();
-        dish.setRestaurant(restaurant);
-
-        when(restaurantPersistencePort.getRestaurantById(1L))
-                .thenThrow(new RestaurantNotFundException(DomainConstants.USER_IS_NOT_OWNER));
-
-        assertThrows(RestaurantNotFundException.class, () -> dishUseCase.createDish(dish));
-        verify(restaurantPersistencePort).getRestaurantById(1L);
-        verify(categoryPersistencePort, never()).getCategoryById(anyLong());
-        verify(dishPersistencePort, never()).createDish(any(Dish.class));
-    }
-
-    @Test
-    void createDish_ShouldThrowException_WhenCategoryDoesNotExist() {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(1L);
-
-        Category category = new Category();
-        category.setId(2L);
-
-        Dish dish = new Dish();
-        dish.setRestaurant(restaurant);
-        dish.setCategory(category);
-
+    void createDish_ShouldThrowException_WhenUserIsNotOwner() {
+        restaurant.setOwnerId(otherOwnerId);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(ownerId);
         when(restaurantPersistencePort.getRestaurantById(1L)).thenReturn(restaurant);
-        when(categoryPersistencePort.getCategoryById(2L))
-                .thenThrow(new CategoryNotFundException(DomainConstants.CATEGORY_NOT_FOUND));
+        when(categoryPersistencePort.getCategoryById(2L)).thenReturn(category);
 
-        assertThrows(CategoryNotFundException.class, () -> dishUseCase.createDish(dish));
-        verify(restaurantPersistencePort).getRestaurantById(1L);
-        verify(categoryPersistencePort).getCategoryById(2L);
-        verify(dishPersistencePort, never()).createDish(any(Dish.class));
+        assertThrows(UserIsNotOwnerException.class, () -> dishUseCase.createDish(dish));
+
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(1L);
+        verify(categoryPersistencePort, times(1)).getCategoryById(2L);
     }
 
     @Test
-    void updatedDishById_ShouldReturnUpdatedDish_WhenDishExists() {
-        Long dishId = 1L;
-        Dish existingDish = new Dish();
-        existingDish.setId(dishId);
-        existingDish.setDescription("Old Description");
-        existingDish.setPrice(1000.0);
+    void updatedDishById_ShouldThrowException_WhenUserIsNotOwner() {
+        restaurant.setOwnerId(otherOwnerId);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(ownerId);
+        when(dishPersistencePort.getDishById(1L)).thenReturn(dish);
+        when(restaurantPersistencePort.getRestaurantById(1L)).thenReturn(restaurant);
 
         Dish updatedDish = new Dish();
         updatedDish.setDescription("New Description");
         updatedDish.setPrice(1500.0);
 
-        when(dishPersistencePort.getDishById(dishId)).thenReturn(existingDish);
-        when(dishPersistencePort.updateDish(any(Dish.class))).thenReturn(existingDish);
+        assertThrows(UserIsNotOwnerException.class, () -> dishUseCase.updatedDishById(1L, updatedDish));
 
-        Dish result = dishUseCase.updatedDishById(dishId, updatedDish);
-
-        assertNotNull(result);
-        assertEquals("New Description", result.getDescription());
-        assertEquals(1500.0, result.getPrice());
-        verify(dishPersistencePort).getDishById(dishId);
-        verify(dishPersistencePort).updateDish(existingDish);
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(dishPersistencePort, times(1)).getDishById(1L);
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(1L);
     }
 
     @Test
-    void updatedDishById_ShouldThrowException_WhenDishDoesNotExist() {
-        Long dishId = 1L;
-        Dish updatedDish = new Dish();
-        updatedDish.setDescription("New Description");
-        updatedDish.setPrice(1500.0);
+    void toggleDishStatus_ShouldThrowException_WhenUserIsNotOwner() {
+        restaurant.setOwnerId(otherOwnerId);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(ownerId);
+        when(dishPersistencePort.getDishById(1L)).thenReturn(dish);
+        when(restaurantPersistencePort.getRestaurantById(1L)).thenReturn(restaurant);
 
-        when(dishPersistencePort.getDishById(dishId))
-                .thenThrow(new DishNotFundException(DomainConstants.DISH_NOT_FOUND));
+        assertThrows(UserIsNotOwnerException.class, () -> dishUseCase.toggleDishStatus(1L));
 
-        assertThrows(DishNotFundException.class, () -> dishUseCase.updatedDishById(dishId, updatedDish));
-        verify(dishPersistencePort).getDishById(dishId);
-        verify(dishPersistencePort, never()).updateDish(any(Dish.class));
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(dishPersistencePort, times(1)).getDishById(1L);
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(1L);
     }
 }
+

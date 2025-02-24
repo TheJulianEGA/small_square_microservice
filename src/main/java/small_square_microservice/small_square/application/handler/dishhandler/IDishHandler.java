@@ -10,4 +10,5 @@ public interface IDishHandler {
 
     DishResponse updateDish(Long id, DishUpdateRequest dishUpdateRequest);
 
+    DishResponse toggleDishStatus(Long id);
 }
