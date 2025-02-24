@@ -15,6 +15,7 @@ import small_square_microservice.small_square.application.dto.dishdto.DishReques
 import small_square_microservice.small_square.application.dto.dishdto.DishResponse;
 import small_square_microservice.small_square.application.dto.dishdto.DishUpdateRequest;
 import small_square_microservice.small_square.application.handler.dishhandler.IDishHandler;
+import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
 @RestController
@@ -56,7 +57,8 @@ public class DishController {
                             schema = @Schema(implementation = DishResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "403", description = "Forbidden - User not authenticated or lacks necessary permissions",
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authenticated or lacks " +
+                    "necessary permissions",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Dish not found",
                     content = @Content(mediaType = "application/json")),
@@ -81,7 +83,8 @@ public class DishController {
                             schema = @Schema(implementation = DishResponse.class))),
             @ApiResponse(responseCode = "404", description = "Dish not found",
                     content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "403", description = "Forbidden - User not authenticated or lacks necessary permissions",
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authenticated or lacks " +
+                    "necessary permissions",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json"))
@@ -91,6 +94,34 @@ public class DishController {
     public ResponseEntity<DishResponse> toggleDishStatus(@PathVariable Long id) {
         DishResponse updatedDish = dishHandler.toggleDishStatus(id);
         return ResponseEntity.ok(updatedDish);
+    }
+
+    @Operation(
+            summary = "List dishes by restaurant",
+            description = "Retrieves a paginated list of dishes for a specific restaurant. Optionally, " +
+                    "dishes can be filtered by category."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of dishes retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Paginated.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User lacks necessary permissions",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json"))
+    })
+    @PreAuthorize(InfrastructureConstants.ROLE_CUSTOMER)
+    @GetMapping("/get_dishes_by_restaurantId/{restaurantId}")
+    public ResponseEntity<Paginated<DishResponse>> getDishesByRestaurant(
+            @PathVariable Long restaurantId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long categoryId) {
+
+        Paginated<DishResponse> dishes = dishHandler.getDishesByRestaurant(restaurantId, page, size, categoryId);
+        return ResponseEntity.ok(dishes);
     }
 
 }

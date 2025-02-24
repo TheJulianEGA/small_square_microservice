@@ -28,25 +28,14 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         }
 
         return restaurantPersistencePort.registerRestaurant(restaurant);
-
     }
 
     @Override
     public Paginated<Restaurant> getAllRestaurants(int page, int size) {
-        if (isValidNumber(page) || isValidNumber(size) || page < 0 || size < 1) {
+        if ( page < 0 || size < 1) {
             throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
         }
         return restaurantPersistencePort.getAllRestaurants(page, size);
-    }
-
-    private boolean isValidNumber(Object value) {
-        if (value == null) return true;
-        try {
-            Integer.parseInt(String.valueOf(value));
-            return false;
-        } catch (NumberFormatException e) {
-            return true;
-        }
     }
 
 }

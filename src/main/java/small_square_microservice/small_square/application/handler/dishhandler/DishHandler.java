@@ -9,6 +9,9 @@ import small_square_microservice.small_square.application.dto.dishdto.DishUpdate
 import small_square_microservice.small_square.application.mapper.dishmapper.IDishMapper;
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.model.Dish;
+import small_square_microservice.small_square.domain.util.Paginated;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -41,5 +44,24 @@ public class DishHandler implements IDishHandler{
     public DishResponse toggleDishStatus(Long id) {
         Dish updatedDish = dishServicePort.toggleDishStatus(id);
         return dishMapper.toResponse(updatedDish);
+    }
+
+    @Override
+    public Paginated<DishResponse> getDishesByRestaurant(Long restaurantId, int page, int size, Long categoryId) {
+
+        Paginated<Dish> paginatedDishes = dishServicePort.getDishesByRestaurant(restaurantId, page, size, categoryId);
+
+        List<DishResponse> dishResponses = paginatedDishes.getContent()
+                .stream()
+                .map(dishMapper::toResponse)
+                .toList();
+
+        return new Paginated<>(
+                dishResponses,
+                paginatedDishes.getPageNumber(),
+                paginatedDishes.getPageSize(),
+                paginatedDishes.getTotalElements(),
+                paginatedDishes.getTotalPages()
+        );
     }
 }

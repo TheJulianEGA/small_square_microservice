@@ -46,4 +46,5 @@ public class RestaurantHandler implements IRestaurantHandler {
                 paginatedRestaurants.getTotalPages()
         );
     }
+
 }

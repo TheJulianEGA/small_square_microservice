@@ -1,10 +1,7 @@
 package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IDishServicePort;
-import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
-import small_square_microservice.small_square.domain.exception.DishNotFundException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
-import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
+import small_square_microservice.small_square.domain.exception.*;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Restaurant;
@@ -13,6 +10,7 @@ import small_square_microservice.small_square.domain.spi.ICategoryPersistencePor
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
+import small_square_microservice.small_square.domain.util.Paginated;
 
 
 public class DishUseCase implements IDishServicePort {
@@ -72,6 +70,20 @@ public class DishUseCase implements IDishServicePort {
 
         return dishPersistencePort.updateDish(dish);
     }
+
+    @Override
+    public Paginated<Dish> getDishesByRestaurant(Long restaurantId, int page, int size, Long categoryId) {
+
+        if (restaurantPersistencePort.getRestaurantById(restaurantId) == null) {
+            throw new RestaurantNotFundException(DomainConstants.RESTAURANT_NOT_FOUND);
+        }
+
+        if ( page < 0 || size < 1) {
+            throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
+        }
+        return dishPersistencePort.getDishesByRestaurant(restaurantId, page, size, categoryId);
+    }
+
 
     private Dish validateDishExists(Long id) {
         Dish dish = dishPersistencePort.getDishById(id);
