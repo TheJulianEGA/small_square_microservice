@@ -10,13 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
+import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
 import small_square_microservice.small_square.application.handler.restauranthandler.IRestaurantHandler;
+import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
 @RestController
@@ -44,11 +43,37 @@ public class RestaurantController {
     })
     @PreAuthorize(InfrastructureConstants.ROLE_ADMINISTRATOR )
     @PostMapping("/create")
-    public ResponseEntity<RestaurantResponse> createRestaurant(@Valid @RequestBody RestaurantRequest restaurantRequest) {
+    public ResponseEntity<RestaurantResponse> createRestaurant(
+            @Valid @RequestBody RestaurantRequest restaurantRequest) {
+
 
         RestaurantResponse restaurantResponse = restaurantHandler.registerRestaurant(restaurantRequest);
 
         return new ResponseEntity<>(restaurantResponse, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "List all restaurants",
+            description = "Retrieves a paginated list of restaurants sorted alphabetically."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of restaurants retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Paginated.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User lacks necessary permissions",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json"))
+    })
+    @PreAuthorize(InfrastructureConstants.ROLE_CUSTOMER)
+    @GetMapping("/list")
+    public ResponseEntity<Paginated<RestaurantResponseForPagination>> getAllRestaurants(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Paginated<RestaurantResponseForPagination> paginatedRestaurants
+                = restaurantHandler.getAllRestaurants(page, size);
+        return ResponseEntity.ok(paginatedRestaurants);
     }
 
 }

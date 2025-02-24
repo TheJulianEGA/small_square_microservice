@@ -14,7 +14,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
+import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
 import small_square_microservice.small_square.application.handler.restauranthandler.IRestaurantHandler;
+import small_square_microservice.small_square.domain.util.Paginated;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -69,5 +73,32 @@ class RestaurantControllerTest {
 
 
         verify(restaurantHandler, times(1)).registerRestaurant(any(RestaurantRequest.class));
+    }
+
+    @Test
+    void getAllRestaurants_ShouldReturnPaginatedList_WhenRequestIsValid() throws Exception {
+        int page = 0;
+        int size = 10;
+
+        List<RestaurantResponseForPagination> restaurants = List.of(
+                new RestaurantResponseForPagination(),
+                new RestaurantResponseForPagination()
+        );
+
+        Paginated<RestaurantResponseForPagination> paginatedResponse = new Paginated<>(
+                restaurants, page, size, restaurants.size(), 1
+        );
+
+        when(restaurantHandler.getAllRestaurants(page, size)).thenReturn(paginatedResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/small_square/restaurant/list")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(paginatedResponse)));
+
+        verify(restaurantHandler, times(1)).getAllRestaurants(page, size);
     }
 }

@@ -3,6 +3,7 @@ package small_square_microservice.small_square.application.mapper.restaurantmapp
 import org.springframework.stereotype.Component;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
+import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
 import small_square_microservice.small_square.domain.model.Restaurant;
 
 @Component
@@ -30,6 +31,14 @@ public class RestaurantMapper implements IRestaurantMapper {
         response.setPhone(restaurant.getPhone());
         response.setLogoUrl(restaurant.getLogoUrl());
         response.setNit(restaurant.getNit());
+        return response;
+    }
+
+    @Override
+    public RestaurantResponseForPagination toResponseForPagination(Restaurant restaurant) {
+        RestaurantResponseForPagination response = new RestaurantResponseForPagination();
+        response.setName(restaurant.getName());
+        response.setLogoUrl(restaurant.getLogoUrl());
         return response;
     }
 

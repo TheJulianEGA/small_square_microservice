@@ -1,11 +1,13 @@
 package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
+import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.spi.IUserFeignPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
+import small_square_microservice.small_square.domain.util.Paginated;
 
 public class RestaurantUseCase implements IRestaurantServicePort {
 
@@ -18,7 +20,6 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         this.userFeignPersistencePort = userFeignPersistencePort;
     }
 
-
     @Override
     public Restaurant registerRestaurant(Restaurant restaurant) {
 
@@ -28,6 +29,24 @@ public class RestaurantUseCase implements IRestaurantServicePort {
 
         return restaurantPersistencePort.registerRestaurant(restaurant);
 
+    }
+
+    @Override
+    public Paginated<Restaurant> getAllRestaurants(int page, int size) {
+        if (isValidNumber(page) || isValidNumber(size) || page < 0 || size < 1) {
+            throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
+        }
+        return restaurantPersistencePort.getAllRestaurants(page, size);
+    }
+
+    private boolean isValidNumber(Object value) {
+        if (value == null) return true;
+        try {
+            Integer.parseInt(String.valueOf(value));
+            return false;
+        } catch (NumberFormatException e) {
+            return true;
+        }
     }
 
 }
