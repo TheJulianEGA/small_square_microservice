@@ -14,4 +14,6 @@ public interface IRestaurantPersistencePort {
     Restaurant updateRestaurant(Restaurant restaurantToUpdate);
 
     Long findRestaurantByEmployeeId(Long employeeId);
+
+    Long getRestaurantByEmployeeId(Long employeeId);
 }

@@ -18,6 +18,7 @@ public class InfrastructureConstants {
     public static final String STATUS_PENDING = "pending";
     public static final String STATUS_IN_PREPARATION = "in preparation";
     public static final String STATUS_READY = "ready";
+    public static final String ROLE_EMPLOYEE = "hasRole('EMPLOYEE')";
 
 
     private InfrastructureConstants() {

@@ -10,13 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
 import small_square_microservice.small_square.application.handler.orderhandler.IOrderHandler;
+import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
 @RestController
@@ -38,13 +36,36 @@ public class OrderController {
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "403", description = "Access denied - only customers can place orders",
                     content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Restaurant or dish not found",
-                    content = @Content(mediaType = "application/json"))
     })
     @PreAuthorize(InfrastructureConstants.ROLE_CUSTOMER)
     @PostMapping("/create")
     public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest) {
         OrderResponse createdOrder = orderHandler.createOrder(orderRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
+
+    @Operation(
+            summary = "Get orders by status",
+            description = "Retrieves a paginated list of orders filtered by status. Only accessible to employees."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Paginated.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Access denied - only employees can view orders",
+                    content = @Content(mediaType = "application/json"))
+    })
+    @PreAuthorize(InfrastructureConstants.ROLE_EMPLOYEE)
+    @GetMapping("get_order_by_status")
+    public ResponseEntity<Paginated<OrderResponse>> getOrdersByStatus(
+            @RequestParam String status,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        Paginated<OrderResponse> orders = orderHandler.getOrdersByStatus( status, page, size);
+
+        return ResponseEntity.ok(orders);
     }
 }

@@ -13,6 +13,8 @@ import java.util.List;
 @Builder
 public class OrderResponse {
     private Long id;
+    private Long clientId;
+    private Long chefId;
     private LocalDateTime date;
     private String status;
     private Long restaurantId;

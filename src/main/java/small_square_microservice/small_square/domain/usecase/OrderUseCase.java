@@ -1,10 +1,7 @@
 package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IOrderServicePort;
-import small_square_microservice.small_square.domain.exception.DishNotAvailableException;
-import small_square_microservice.small_square.domain.exception.DishNotFoundException;
-import small_square_microservice.small_square.domain.exception.OrderInProgressException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
+import small_square_microservice.small_square.domain.exception.*;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.model.OrderDish;
@@ -14,6 +11,7 @@ import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
 import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
+import small_square_microservice.small_square.domain.util.Paginated;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,6 +47,24 @@ public class OrderUseCase implements IOrderServicePort {
         order.setDate(LocalDateTime.now());
 
         return orderPersistencePort.createOrder(order);
+    }
+
+    @Override
+    public Paginated<Order> getOrdersByStatus( String status, int page, int size) {
+
+        Long authenticatedEmployeeId = authenticationSecurityPort.getAuthenticatedUserId();
+
+        Long restaurantId = restaurantPersistencePort.getRestaurantByEmployeeId(authenticatedEmployeeId);
+
+        if (restaurantId == null) {
+            throw new UnauthorizedException(DomainConstants.EMPLOYEE_NOT_ASSOCIATED_WITH_RESTAURANT);
+        }
+
+        if (page < 0 || size < 1) {
+            throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
+        }
+
+        return orderPersistencePort.getOrdersByStatus(restaurantId, status, page, size);
     }
 
 
