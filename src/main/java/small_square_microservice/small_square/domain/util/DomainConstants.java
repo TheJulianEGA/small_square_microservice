@@ -20,8 +20,8 @@ public class DomainConstants {
         public static final String STATUS_PENDING = "pending";
         public static final String ORDER_IN_PROGRESS = "The order is already in progress";
         public static final String DISH_NOT_AVAILABLE = "Dish not available";
-    public static final String EMPLOYEE_ALREADY_IN_RESTAURANT = "Employee already in restaurant";
-    public static final String EMPLOYEE_ASSIGNED_TO_ANOTHER_RESTAURANT = "Employee assigned to another restaurant";
+        public static final String EMPLOYEE_ALREADY_IN_RESTAURANT = "Employee already in restaurant";
+        public static final String EMPLOYEE_ALREADY_IN_ANOTHER_RESTAURANT = "Employee already in another restaurant";
 
 
     private DomainConstants() {

@@ -69,8 +69,11 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
     }
 
     @Override
-    public boolean isEmployeeInAnotherRestaurant(Long employeeId, Long restaurantId) {
-        return false;
+    public Long findRestaurantByEmployeeId(Long employeeId) {
+        return restaurantRepository.findByEmployees_Id_EmployeeId(employeeId)
+                .map(RestaurantEntity::getId)
+                .orElse(null);
     }
+
 
 }

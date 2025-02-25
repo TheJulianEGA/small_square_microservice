@@ -20,6 +20,7 @@ public class Restaurant {
     private String nit;
     private List<Dish> dishes;
     private List<Order> orders;
-    private List<Long> employeeIds;
+    private List<RestaurantEmployee> employeeIds;
+
 
 }

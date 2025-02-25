@@ -7,8 +7,10 @@ import small_square_microservice.small_square.application.dto.restaurantdto.Rest
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.model.RestaurantEmployee;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class RestaurantMapper implements IRestaurantMapper {
@@ -35,8 +37,12 @@ public class RestaurantMapper implements IRestaurantMapper {
                 .phone(restaurant.getPhone())
                 .logoUrl(restaurant.getLogoUrl())
                 .nit(restaurant.getNit())
-                .employeeIds(restaurant.getEmployeeIds())
+                .employeeIds(restaurant.getEmployeeIds()
+                        .stream()
+                        .map(RestaurantEmployee::getEmployeeId)
+                        .collect(Collectors.toList()))
                 .build();
+
     }
 
     @Override
@@ -50,7 +56,10 @@ public class RestaurantMapper implements IRestaurantMapper {
     @Override
     public Restaurant employeeToRestaurantToModel(RegisterEmployeeToRestaurantRequest request) {
         return Restaurant.builder()
-                .employeeIds(request.getEmployeeIds())
+                .employeeIds(request.getEmployeeIds()
+                        .stream()
+                        .map(employeeId -> new RestaurantEmployee(null, employeeId))
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

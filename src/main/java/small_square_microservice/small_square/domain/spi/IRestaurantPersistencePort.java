@@ -14,5 +14,5 @@ public interface IRestaurantPersistencePort {
 
     Restaurant updateRestaurant(Restaurant restaurantToUpdate);
 
-    boolean isEmployeeInAnotherRestaurant(Long employeeId, Long restaurantId);
+    Long findRestaurantByEmployeeId(Long employeeId);
 }
