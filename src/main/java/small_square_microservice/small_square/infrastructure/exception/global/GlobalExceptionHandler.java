@@ -15,6 +15,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(DishNotAvailableException.class)
+    public ResponseEntity<String> dishNotAvailableException(DishNotAvailableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(OrderInProgressException.class)
     public ResponseEntity<String> orderInProgressException(OrderInProgressException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
@@ -25,18 +30,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(DishNotFundException.class)
-    public ResponseEntity<String> dishNotFundException(DishNotFundException ex) {
+    @ExceptionHandler(DishNotFoundException.class)
+    public ResponseEntity<String> dishNotFundException(DishNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(CategoryNotFundException.class)
-    public ResponseEntity<String> categoryNotFundException(CategoryNotFundException ex) {
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<String> categoryNotFundException(CategoryNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(RestaurantNotFundException.class)
-    public ResponseEntity<String> restaurantNotFundException(RestaurantNotFundException ex) {
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<String> restaurantNotFundException(RestaurantNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 

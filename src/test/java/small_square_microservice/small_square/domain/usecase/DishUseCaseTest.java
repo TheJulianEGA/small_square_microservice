@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
@@ -147,7 +147,7 @@ class DishUseCaseTest {
     void getDishesByRestaurant_ShouldThrowException_WhenRestaurantDoesNotExist() {
         when(restaurantPersistencePort.getRestaurantById(1L)).thenReturn(null);
 
-        assertThrows(RestaurantNotFundException.class,
+        assertThrows(RestaurantNotFoundException.class,
                 () -> dishUseCase.getDishesByRestaurant(1L, 0, 10, null));
 
         verify(restaurantPersistencePort, times(1)).getRestaurantById(1L);

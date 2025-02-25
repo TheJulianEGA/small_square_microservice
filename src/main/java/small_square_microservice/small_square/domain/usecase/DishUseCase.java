@@ -75,7 +75,7 @@ public class DishUseCase implements IDishServicePort {
     public Paginated<Dish> getDishesByRestaurant(Long restaurantId, int page, int size, Long categoryId) {
 
         if (restaurantPersistencePort.getRestaurantById(restaurantId) == null) {
-            throw new RestaurantNotFundException(DomainConstants.RESTAURANT_NOT_FOUND);
+            throw new RestaurantNotFoundException(DomainConstants.RESTAURANT_NOT_FOUND);
         }
 
         if ( page < 0 || size < 1) {
@@ -88,7 +88,7 @@ public class DishUseCase implements IDishServicePort {
     private Dish validateDishExists(Long id) {
         Dish dish = dishPersistencePort.getDishById(id);
         if (dish == null) {
-            throw new DishNotFundException(DomainConstants.DISH_NOT_FOUND);
+            throw new DishNotFoundException(DomainConstants.DISH_NOT_FOUND);
         }
         return dish;
     }
@@ -106,7 +106,7 @@ public class DishUseCase implements IDishServicePort {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(dish.getRestaurant().getId());
 
         if (restaurant == null) {
-            throw new RestaurantNotFundException(DomainConstants.RESTAURANT_NOT_FOUND);
+            throw new RestaurantNotFoundException(DomainConstants.RESTAURANT_NOT_FOUND);
         }
         return restaurant;
     }
@@ -114,7 +114,7 @@ public class DishUseCase implements IDishServicePort {
     private Category validateCategoryReference(Dish dish) {
         Category category = categoryPersistencePort.getCategoryById(dish.getCategory().getId());
         if (category == null) {
-            throw new CategoryNotFundException(DomainConstants.CATEGORY_NOT_FOUND);
+            throw new CategoryNotFoundException(DomainConstants.CATEGORY_NOT_FOUND);
         }
         return category;
     }

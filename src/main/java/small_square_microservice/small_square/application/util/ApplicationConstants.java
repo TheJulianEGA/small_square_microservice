@@ -21,6 +21,7 @@ public class ApplicationConstants {
     public static final String QUANTITY_NOT_VALID = "The quantity must be greater than 0";
     public static final String DISH_NOT_NULL = "The restaurant cannot be null";
     public static final String EMPLOYEE_NOT_EMPTY = "The dish list cannot be empty";
+    public static final String ORDER_DISHES_NOT_EMPTY = "The dish list cannot be empty";
 
     private ApplicationConstants() {}
 }

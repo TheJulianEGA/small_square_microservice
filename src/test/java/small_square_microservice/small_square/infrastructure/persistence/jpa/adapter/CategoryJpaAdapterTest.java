@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import small_square_microservice.small_square.domain.exception.CategoryNotFundException;
+import small_square_microservice.small_square.domain.exception.CategoryNotFoundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.CategoryEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.categorymapper.ICategoryEntityMapper;
@@ -64,7 +64,7 @@ class CategoryJpaAdapterTest {
     void getCategoryById_ShouldThrowException_WhenCategoryDoesNotExist() {
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
-        assertThrows(CategoryNotFundException.class, () -> categoryJpaAdapter.getCategoryById(categoryId));
+        assertThrows(CategoryNotFoundException.class, () -> categoryJpaAdapter.getCategoryById(categoryId));
 
         verify(categoryRepository).findById(categoryId);
         verify(categoryEntityMapper, never()).toModel(any());

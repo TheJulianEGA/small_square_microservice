@@ -1,5 +1,6 @@
 package small_square_microservice.small_square.application.dto.orderdto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ public class OrderRequest {
     @NotNull(message = ApplicationConstants.RESTAURANT_NOT_NULL)
     private Long restaurantId;
 
-    @NotEmpty(message = "Debe proporcionar al menos un ID de empleado.")
-    private List<OrderDishRequest> orderDishes;
+    @NotEmpty(message = ApplicationConstants.ORDER_DISHES_NOT_EMPTY)
+    private @Valid List< OrderDishRequest> orderDishes;
 
 }

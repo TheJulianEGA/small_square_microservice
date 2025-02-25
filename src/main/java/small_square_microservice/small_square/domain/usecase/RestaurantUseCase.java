@@ -1,13 +1,9 @@
 package small_square_microservice.small_square.domain.usecase;
 
-import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
-import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
-import small_square_microservice.small_square.domain.exception.DishNotFundException;
 import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
-import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
@@ -79,7 +75,7 @@ public class RestaurantUseCase implements IRestaurantServicePort {
     private Restaurant validateRestaurantExists(Long id) {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(id);
         if (restaurant == null) {
-            throw new RestaurantNotFundException(DomainConstants.RESTAURANT_NOT_FOUND);
+            throw new RestaurantNotFoundException(DomainConstants.RESTAURANT_NOT_FOUND);
         }
         return restaurant;
     }

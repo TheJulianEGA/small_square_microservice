@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
@@ -79,7 +79,7 @@ class RestaurantJpaAdapterTest {
 
         when(restaurantRepository.findById(1L)).thenReturn(Optional.empty());
 
-        RestaurantNotFundException exception = assertThrows(RestaurantNotFundException.class,
+        RestaurantNotFoundException exception = assertThrows(RestaurantNotFoundException.class,
                 () -> restaurantJpaAdapter.getRestaurantById(1L));
         assertEquals(InfrastructureConstants.RESTAURANT_NOT_FOUND, exception.getMessage());
         verify(restaurantRepository).findById(1L);

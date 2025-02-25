@@ -17,6 +17,9 @@ public class DomainConstants {
                    The 'page' and 'size' values are incorrect. Make sure 'page' is greater than or equal to 0
                    and 'size' is greater than or equal to 1.
                    """;
+        public static final String STATUS_PENDING = "pending";
+        public static final String ORDER_IN_PROGRESS = "The order is already in progress";
+        public static final String DISH_NOT_AVAILABLE = "Dish not available";
 
         private DomainConstants() {
         }

@@ -9,7 +9,6 @@ import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.model.OrderDish;
 import small_square_microservice.small_square.domain.model.Restaurant;
 
-import java.util.List;
 
 @Component
 public class OrderMapper implements IOrderMapper {
