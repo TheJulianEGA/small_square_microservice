@@ -11,26 +11,19 @@ public class CategoryEntityMapper implements ICategoryEntityMapper {
 
     @Override
     public Category toModel(CategoryEntity entity) {
-
-        return new Category(
-                entity.getId(),
-                entity.getName(),
-                entity.getDescription(),
-                new ArrayList<>()
-        );
+        return Category.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .build();
     }
 
     @Override
     public CategoryEntity toEntity(Category model) {
-        if (model == null) {
-            return null;
-        }
-
-        CategoryEntity entity = new CategoryEntity();
-        entity.setId(model.getId());
-        entity.setName(model.getName());
-        entity.setDescription(model.getDescription());
-
-        return entity;
+        return CategoryEntity.builder()
+                .id(model.getId())
+                .name(model.getName())
+                .description(model.getDescription())
+                .build();
     }
 }

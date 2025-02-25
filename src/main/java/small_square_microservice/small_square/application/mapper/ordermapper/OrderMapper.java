@@ -11,56 +11,35 @@ import small_square_microservice.small_square.domain.model.Restaurant;
 
 import java.util.List;
 
-
 @Component
 public class OrderMapper implements IOrderMapper {
 
     @Override
     public Order toModel(OrderRequest request) {
-        Order order = new Order();
-        order.setRestaurant(
-                new Restaurant(request.getRestaurantId(),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null));
-        List<OrderDish> orderDishes = request.getOrderDishes().stream()
-                .map(dishRequest -> new OrderDish(
-                        null,
-                        new Dish(dishRequest.getDishId(),
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null),
-                        dishRequest.getQuantity()))
-                .toList();
-        order.setOrderDishes(orderDishes);
-        return order;
+        return Order.builder()
+                .restaurant(Restaurant.builder().id(request.getRestaurantId()).build())
+                .orderDishes(request.getOrderDishes().stream()
+                        .map(dishRequest -> OrderDish.builder()
+                                .dish(Dish.builder().id(dishRequest.getDishId()).build())
+                                .quantity(dishRequest.getQuantity())
+                                .build())
+                        .toList())
+                .build();
     }
 
     @Override
     public OrderResponse toResponse(Order order) {
-        OrderResponse response = new OrderResponse();
-        response.setId(order.getId());
-        response.setDate(order.getDate());
-        response.setStatus(order.getStatus());
-
-        List<OrderDishResponse> orderDishes = order.getOrderDishes().stream()
-                .map(dish -> new OrderDishResponse(
-                        dish.getDish().getId(),
-                        dish.getQuantity()))
-                .toList();
-        response.setOrderDishes(orderDishes);
-        return response;
+        return OrderResponse.builder()
+                .id(order.getId())
+                .date(order.getDate())
+                .status(order.getStatus())
+                .restaurantId(order.getRestaurant().getId())
+                .orderDishes(order.getOrderDishes().stream()
+                        .map(dish -> OrderDishResponse.builder()
+                                .dishId(dish.getDish().getId())
+                                .quantity(dish.getQuantity())
+                                .build())
+                        .toList())
+                .build();
     }
-
 }

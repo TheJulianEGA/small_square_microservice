@@ -5,33 +5,33 @@ import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
 
 @Component
-public class RestaurantEntityMapper implements IRestaurantEntityMapper{
+public class RestaurantEntityMapper implements IRestaurantEntityMapper {
 
     @Override
     public RestaurantEntity toEntity(Restaurant restaurant) {
-        RestaurantEntity entity = new RestaurantEntity();
-        entity.setId(restaurant.getId());
-        entity.setName(restaurant.getName());
-        entity.setAddress(restaurant.getAddress());
-        entity.setOwnerId(restaurant.getOwnerId());
-        entity.setPhone(restaurant.getPhone());
-        entity.setLogoUrl(restaurant.getLogoUrl());
-        entity.setNit(restaurant.getNit());
-        entity.setEmployeeIds(restaurant.getEmployeeIds());
-        return entity;
+        return RestaurantEntity.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .ownerId(restaurant.getOwnerId())
+                .phone(restaurant.getPhone())
+                .logoUrl(restaurant.getLogoUrl())
+                .nit(restaurant.getNit())
+                .employeeIds(restaurant.getEmployeeIds())
+                .build();
     }
 
     @Override
     public Restaurant toModel(RestaurantEntity entity) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(entity.getId());
-        restaurant.setName(entity.getName());
-        restaurant.setAddress(entity.getAddress());
-        restaurant.setOwnerId(entity.getOwnerId());
-        restaurant.setPhone(entity.getPhone());
-        restaurant.setLogoUrl(entity.getLogoUrl());
-        restaurant.setNit(entity.getNit());
-        restaurant.setEmployeeIds(entity.getEmployeeIds());
-        return restaurant;
+        return Restaurant.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .address(entity.getAddress())
+                .ownerId(entity.getOwnerId())
+                .phone(entity.getPhone())
+                .logoUrl(entity.getLogoUrl())
+                .nit(entity.getNit())
+                .employeeIds(entity.getEmployeeIds())
+                .build();
     }
 }

@@ -15,45 +15,43 @@ public class RestaurantMapper implements IRestaurantMapper {
 
     @Override
     public Restaurant toModel(RestaurantRequest restaurantRequest) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName(restaurantRequest.getName());
-        restaurant.setAddress(restaurantRequest.getAddress());
-        restaurant.setOwnerId(restaurantRequest.getOwnerId());
-        restaurant.setPhone(restaurantRequest.getPhone());
-        restaurant.setLogoUrl(restaurantRequest.getLogoUrl());
-        restaurant.setNit(restaurantRequest.getNit());
-        return restaurant;
+        return Restaurant.builder()
+                .name(restaurantRequest.getName())
+                .address(restaurantRequest.getAddress())
+                .ownerId(restaurantRequest.getOwnerId())
+                .phone(restaurantRequest.getPhone())
+                .logoUrl(restaurantRequest.getLogoUrl())
+                .nit(restaurantRequest.getNit())
+                .build();
     }
 
     @Override
     public RestaurantResponse toResponse(Restaurant restaurant) {
-        RestaurantResponse response = new RestaurantResponse();
-        response.setId(restaurant.getId());
-        response.setName(restaurant.getName());
-        response.setAddress(restaurant.getAddress());
-        response.setOwnerId(restaurant.getOwnerId());
-        response.setPhone(restaurant.getPhone());
-        response.setLogoUrl(restaurant.getLogoUrl());
-        response.setNit(restaurant.getNit());
-        response.setEmployeeIds(restaurant.getEmployeeIds());
-        return response;
+        return RestaurantResponse.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .ownerId(restaurant.getOwnerId())
+                .phone(restaurant.getPhone())
+                .logoUrl(restaurant.getLogoUrl())
+                .nit(restaurant.getNit())
+                .employeeIds(restaurant.getEmployeeIds())
+                .build();
     }
 
     @Override
     public RestaurantResponseForPagination toResponseForPagination(Restaurant restaurant) {
-        RestaurantResponseForPagination response = new RestaurantResponseForPagination();
-        response.setName(restaurant.getName());
-        response.setLogoUrl(restaurant.getLogoUrl());
-        return response;
+        return RestaurantResponseForPagination.builder()
+                .name(restaurant.getName())
+                .logoUrl(restaurant.getLogoUrl())
+                .build();
     }
 
     @Override
-    public Restaurant employeeToRestaurantToModel( RegisterEmployeeToRestaurantRequest request) {
-            Restaurant restaurant = new Restaurant();
-        restaurant.setEmployeeIds(request.getEmployeeIds());
-        return restaurant;
-
+    public Restaurant employeeToRestaurantToModel(RegisterEmployeeToRestaurantRequest request) {
+        return Restaurant.builder()
+                .employeeIds(request.getEmployeeIds())
+                .build();
     }
-
-
 }
+
