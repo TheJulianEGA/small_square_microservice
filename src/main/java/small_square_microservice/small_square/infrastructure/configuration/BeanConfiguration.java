@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import small_square_microservice.small_square.domain.api.IDishServicePort;
+import small_square_microservice.small_square.domain.api.IOrderServicePort;
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
-import small_square_microservice.small_square.domain.spi.ICategoryPersistencePort;
-import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
-import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
-import small_square_microservice.small_square.domain.spi.IUserFeignPersistencePort;
+import small_square_microservice.small_square.domain.spi.*;
 import small_square_microservice.small_square.domain.usecase.DishUseCase;
+import small_square_microservice.small_square.domain.usecase.OrderUseCase;
 import small_square_microservice.small_square.domain.usecase.RestaurantUseCase;
 
 @Configuration
@@ -20,9 +19,13 @@ public class BeanConfiguration {
     @Bean
     public IRestaurantServicePort restaurantServicePort (
             IRestaurantPersistencePort restaurantPersistencePort,
-            IUserFeignPersistencePort userFeignPersistencePort
+            IUserFeignPersistencePort userFeignPersistencePort,
+            IAuthenticationSecurityPort authenticationSecurityPort
     ) {
-        return new RestaurantUseCase(restaurantPersistencePort, userFeignPersistencePort);
+        return new RestaurantUseCase(
+                restaurantPersistencePort,
+                userFeignPersistencePort,
+                authenticationSecurityPort);
     }
 
     @Bean
@@ -37,6 +40,19 @@ public class BeanConfiguration {
                 restaurantPersistencePort,
                 categoryPersistencePort,
                 authenticationSecurityPort
+        );
+    }
+
+    @Bean
+    public IOrderServicePort orderServicePort(
+            IOrderPersistencePort orderPersistencePort,
+            IRestaurantPersistencePort restaurantPersistencePort,
+            IAuthenticationSecurityPort authenticationSecurityPort,
+            IDishPersistencePort dishPersistencePort) {
+        return new OrderUseCase(orderPersistencePort,
+                restaurantPersistencePort,
+                authenticationSecurityPort,
+                dishPersistencePort
         );
     }
 

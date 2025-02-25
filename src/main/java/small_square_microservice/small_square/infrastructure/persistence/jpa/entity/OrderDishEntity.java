@@ -1,10 +1,7 @@
 package small_square_microservice.small_square.infrastructure.persistence.jpa.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.compositeprimarykey.OrderDishKey;
 
 @Getter
@@ -12,6 +9,7 @@ import small_square_microservice.small_square.infrastructure.persistence.jpa.ent
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "order_dishes")
 public class OrderDishEntity {
 

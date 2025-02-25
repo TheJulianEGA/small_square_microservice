@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
@@ -75,6 +76,34 @@ public class RestaurantController {
         Paginated<RestaurantResponseForPagination> paginatedRestaurants
                 = restaurantHandler.getAllRestaurants(page, size);
         return ResponseEntity.ok(paginatedRestaurants);
+    }
+
+    @Operation(
+            summary = "Update restaurant employees",
+            description = "Allows the restaurant owner to add employees to the restaurant, " +
+                    "ensuring they have the required role and are not already assigned to another restaurant."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Employees updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = RestaurantResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User lacks necessary permissions",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Restaurant not found",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json"))
+    })
+    @PreAuthorize(InfrastructureConstants.ROLE_OWNER)
+    @PutMapping("/update-employees/{restaurantId}")
+    public ResponseEntity<RestaurantResponse> updateRestaurantEmployees(
+            @PathVariable Long restaurantId,
+            @Valid @RequestBody RegisterEmployeeToRestaurantRequest request) {
+
+        RestaurantResponse response = restaurantHandler.updateRestaurantEmployees(restaurantId,request);
+        return ResponseEntity.ok(response);
     }
 
 }

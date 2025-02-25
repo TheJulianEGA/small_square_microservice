@@ -11,4 +11,7 @@ public interface IUserFeignClient {
     @GetMapping("/api/user/exists_user_owner/{userId}")
     boolean existsUserWithOwnerRole(@PathVariable Long userId);
 
+    @GetMapping("/api/user/exists_user_employee/{userId}")
+    boolean existsUserWithEmployeeRole(@PathVariable Long userId);
+
 }

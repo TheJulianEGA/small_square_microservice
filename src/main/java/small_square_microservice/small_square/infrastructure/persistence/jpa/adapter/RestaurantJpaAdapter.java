@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.util.Paginated;
@@ -38,7 +38,7 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
 
         return restaurantRepository.findById(id)
                 .map(restaurantEntityMapper::toModel)
-                .orElseThrow( () -> new RestaurantNotFundException(InfrastructureConstants.RESTAURANT_NOT_FOUND));
+                .orElseThrow( () -> new RestaurantNotFoundException(InfrastructureConstants.RESTAURANT_NOT_FOUND));
     }
 
     @Override
@@ -59,4 +59,20 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
                 restaurantPage.getTotalPages()
         );
     }
+
+    @Override
+    public Restaurant updateRestaurant(Restaurant restaurantToUpdate) {
+        RestaurantEntity restaurantEntity = restaurantRepository.save(restaurantEntityMapper
+                .toEntity(restaurantToUpdate));
+
+        return restaurantEntityMapper.toModel(restaurantEntity);
+    }
+
+    @Override
+    public Long findRestaurantByEmployeeId(Long employeeId) {
+        return restaurantRepository.findByEmployees_Id_EmployeeId(employeeId)
+                .map(RestaurantEntity::getId)
+                .orElse(null);
+    }
+
 }

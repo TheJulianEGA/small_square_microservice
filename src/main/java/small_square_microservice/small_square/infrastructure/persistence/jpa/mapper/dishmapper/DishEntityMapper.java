@@ -8,54 +8,45 @@ import small_square_microservice.small_square.infrastructure.persistence.jpa.ent
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.DishEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
 
-import java.util.ArrayList;
 
 @Component
 public class DishEntityMapper implements IDishEntityMapper {
 
     @Override
-     public  Dish toModel(DishEntity entity) {
-
-        Category category = new Category();
-        category.setId(entity.getCategory().getId());
-        category.setName(entity.getCategory().getName());
-        category.setDescription(entity.getCategory().getDescription());
-
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(entity.getRestaurant().getId());
-
-        return new Dish(
-                entity.getId(),
-                entity.getName(),
-                category,
-                entity.getDescription(),
-                entity.getPrice(),
-                restaurant,
-                entity.getImageUrl(),
-                entity.getIsActive(),
-                new ArrayList<>()
-        );
+    public Dish toModel(DishEntity entity) {
+        return Dish.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .category(Category.builder()
+                        .id(entity.getCategory().getId())
+                        .name(entity.getCategory().getName())
+                        .description(entity.getCategory().getDescription())
+                        .build())
+                .description(entity.getDescription())
+                .price(entity.getPrice())
+                .restaurant(Restaurant.builder()
+                        .id(entity.getRestaurant().getId())
+                        .build())
+                .imageUrl(entity.getImageUrl())
+                .isActive(entity.getIsActive())
+                .build();
     }
 
     @Override
     public DishEntity toEntity(Dish model) {
-
-        CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setId(model.getCategory().getId());
-
-        RestaurantEntity restaurantEntity = new RestaurantEntity();
-        restaurantEntity.setId(model.getRestaurant().getId());
-
-        DishEntity entity = new DishEntity();
-        entity.setId(model.getId());
-        entity.setName(model.getName());
-        entity.setCategory(categoryEntity);
-        entity.setDescription(model.getDescription());
-        entity.setPrice(model.getPrice());
-        entity.setRestaurant(restaurantEntity);
-        entity.setImageUrl(model.getImageUrl());
-        entity.setIsActive(model.getIsActive());
-
-        return entity;
+        return DishEntity.builder()
+                .id(model.getId())
+                .name(model.getName())
+                .category(CategoryEntity.builder()
+                        .id(model.getCategory().getId())
+                        .build())
+                .description(model.getDescription())
+                .price(model.getPrice())
+                .restaurant(RestaurantEntity.builder()
+                        .id(model.getRestaurant().getId())
+                        .build())
+                .imageUrl(model.getImageUrl())
+                .isActive(model.getIsActive())
+                .build();
     }
 }

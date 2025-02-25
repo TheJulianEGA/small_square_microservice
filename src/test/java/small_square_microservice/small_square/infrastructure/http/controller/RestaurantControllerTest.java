@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
@@ -100,5 +101,28 @@ class RestaurantControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(paginatedResponse)));
 
         verify(restaurantHandler, times(1)).getAllRestaurants(page, size);
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldReturnUpdatedRestaurant_WhenRequestIsValid() throws Exception {
+        Long restaurantId = 1L;
+
+        RegisterEmployeeToRestaurantRequest request = new RegisterEmployeeToRestaurantRequest();
+        request.setEmployeeIds(List.of(2L, 3L));
+
+
+        when(restaurantHandler.updateRestaurantEmployees(eq(restaurantId)
+                , any(RegisterEmployeeToRestaurantRequest.class))).thenReturn(restaurantResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/small_square/restaurant/update-employees/" +
+                                "{restaurantId}", restaurantId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(restaurantResponse)));
+
+        verify(restaurantHandler, times(1))
+                .updateRestaurantEmployees(eq(restaurantId), any(RegisterEmployeeToRestaurantRequest.class));
     }
 }

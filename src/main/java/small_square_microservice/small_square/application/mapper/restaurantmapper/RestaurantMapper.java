@@ -1,46 +1,63 @@
 package small_square_microservice.small_square.application.mapper.restaurantmapper;
 
 import org.springframework.stereotype.Component;
+import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
 import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.model.RestaurantEmployee;
+
 
 @Component
 public class RestaurantMapper implements IRestaurantMapper {
 
     @Override
     public Restaurant toModel(RestaurantRequest restaurantRequest) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName(restaurantRequest.getName());
-        restaurant.setAddress(restaurantRequest.getAddress());
-        restaurant.setOwnerId(restaurantRequest.getOwnerId());
-        restaurant.setPhone(restaurantRequest.getPhone());
-        restaurant.setLogoUrl(restaurantRequest.getLogoUrl());
-        restaurant.setNit(restaurantRequest.getNit());
-        return restaurant;
+        return Restaurant.builder()
+                .name(restaurantRequest.getName())
+                .address(restaurantRequest.getAddress())
+                .ownerId(restaurantRequest.getOwnerId())
+                .phone(restaurantRequest.getPhone())
+                .logoUrl(restaurantRequest.getLogoUrl())
+                .nit(restaurantRequest.getNit())
+                .build();
     }
 
     @Override
     public RestaurantResponse toResponse(Restaurant restaurant) {
-        RestaurantResponse response = new RestaurantResponse();
-        response.setId(restaurant.getId());
-        response.setName(restaurant.getName());
-        response.setAddress(restaurant.getAddress());
-        response.setOwnerId(restaurant.getOwnerId());
-        response.setPhone(restaurant.getPhone());
-        response.setLogoUrl(restaurant.getLogoUrl());
-        response.setNit(restaurant.getNit());
-        return response;
+        return RestaurantResponse.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .ownerId(restaurant.getOwnerId())
+                .phone(restaurant.getPhone())
+                .logoUrl(restaurant.getLogoUrl())
+                .nit(restaurant.getNit())
+                .employeeIds(restaurant.getEmployeeIds()
+                        .stream()
+                        .map(RestaurantEmployee::getEmployeeId)
+                        .toList())
+                .build();
+
     }
 
     @Override
     public RestaurantResponseForPagination toResponseForPagination(Restaurant restaurant) {
-        RestaurantResponseForPagination response = new RestaurantResponseForPagination();
-        response.setName(restaurant.getName());
-        response.setLogoUrl(restaurant.getLogoUrl());
-        return response;
+        return RestaurantResponseForPagination.builder()
+                .name(restaurant.getName())
+                .logoUrl(restaurant.getLogoUrl())
+                .build();
     }
 
-
+    @Override
+    public Restaurant employeeToRestaurantToModel(RegisterEmployeeToRestaurantRequest request) {
+        return Restaurant.builder()
+                .employeeIds(request.getEmployeeIds()
+                        .stream()
+                        .map(employeeId -> new RestaurantEmployee(null, employeeId))
+                        .toList())
+                .build();
+    }
 }
+

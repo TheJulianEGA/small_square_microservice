@@ -10,4 +10,8 @@ public interface IRestaurantPersistencePort {
     Restaurant getRestaurantById(Long id);
 
     Paginated<Restaurant> getAllRestaurants(int page, int size);
+
+    Restaurant updateRestaurant(Restaurant restaurantToUpdate);
+
+    Long findRestaurantByEmployeeId(Long employeeId);
 }

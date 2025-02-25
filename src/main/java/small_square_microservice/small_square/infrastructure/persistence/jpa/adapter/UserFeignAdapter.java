@@ -20,4 +20,13 @@ public class UserFeignAdapter implements IUserFeignPersistencePort {
             return false;
         }
     }
+
+    @Override
+    public boolean existsUserWithEmployeeRole(Long userId) {
+        try {
+            return userFeignClient.existsUserWithEmployeeRole(userId);
+        } catch (FeignException.NotFound e) {
+            return false;
+        }
+    }
 }

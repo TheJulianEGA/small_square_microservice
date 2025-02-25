@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFundException;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
@@ -24,7 +24,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class RestaurantJpaAdapterTest {
 
@@ -42,14 +41,14 @@ class RestaurantJpaAdapterTest {
 
     @BeforeEach
     void setUp() {
-
         restaurant = new Restaurant();
+        restaurant.setId(1L);
         restaurantEntity = new RestaurantEntity();
+        restaurantEntity.setId(1L);
     }
 
     @Test
     void registerRestaurant_ShouldReturnSavedRestaurant() {
-
         when(restaurantEntityMapper.toEntity(restaurant)).thenReturn(restaurantEntity);
         when(restaurantRepository.save(restaurantEntity)).thenReturn(restaurantEntity);
         when(restaurantEntityMapper.toModel(restaurantEntity)).thenReturn(restaurant);
@@ -59,11 +58,11 @@ class RestaurantJpaAdapterTest {
         assertNotNull(savedRestaurant);
         assertEquals(restaurant.getId(), savedRestaurant.getId());
         verify(restaurantRepository).save(restaurantEntity);
+        verify(restaurantEntityMapper).toModel(restaurantEntity);
     }
 
     @Test
     void getRestaurantById_ShouldReturnRestaurant_WhenFound() {
-
         when(restaurantRepository.findById(1L)).thenReturn(Optional.of(restaurantEntity));
         when(restaurantEntityMapper.toModel(restaurantEntity)).thenReturn(restaurant);
 
@@ -76,11 +75,11 @@ class RestaurantJpaAdapterTest {
 
     @Test
     void getRestaurantById_ShouldThrowException_WhenNotFound() {
-
         when(restaurantRepository.findById(1L)).thenReturn(Optional.empty());
 
-        RestaurantNotFundException exception = assertThrows(RestaurantNotFundException.class,
+        RestaurantNotFoundException exception = assertThrows(RestaurantNotFoundException.class,
                 () -> restaurantJpaAdapter.getRestaurantById(1L));
+
         assertEquals(InfrastructureConstants.RESTAURANT_NOT_FOUND, exception.getMessage());
         verify(restaurantRepository).findById(1L);
     }
@@ -98,10 +97,7 @@ class RestaurantJpaAdapterTest {
         List<RestaurantEntity> restaurantEntities = List.of(restaurantEntity1, restaurantEntity2);
         List<Restaurant> restaurants = List.of(restaurant1, restaurant2);
 
-        Page<RestaurantEntity> restaurantPage = new PageImpl<>(
-                restaurantEntities,
-                PageRequest.of(page, size),
-                restaurantEntities.size());
+        Page<RestaurantEntity> restaurantPage = new PageImpl<>(restaurantEntities, PageRequest.of(page, size), restaurantEntities.size());
 
         when(restaurantRepository.findAll(any(Pageable.class))).thenReturn(restaurantPage);
         when(restaurantEntityMapper.toModel(restaurantEntity1)).thenReturn(restaurant1);
@@ -114,8 +110,8 @@ class RestaurantJpaAdapterTest {
         assertEquals(restaurantEntities.size(), result.getTotalElements());
         assertEquals(1, result.getTotalPages());
 
-        verify(restaurantRepository,times(1)).findAll(any(Pageable.class));
-        verify(restaurantEntityMapper,times(2)).toModel(any());
+        verify(restaurantRepository).findAll(any(Pageable.class));
+        verify(restaurantEntityMapper, times(2)).toModel(any());
     }
 
     @Test
@@ -134,5 +130,46 @@ class RestaurantJpaAdapterTest {
         assertEquals(0, result.getTotalPages());
         assertTrue(result.getContent().isEmpty());
         verify(restaurantRepository).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void updateRestaurant_ShouldReturnUpdatedRestaurant() {
+        when(restaurantEntityMapper.toEntity(restaurant)).thenReturn(restaurantEntity);
+        when(restaurantRepository.save(restaurantEntity)).thenReturn(restaurantEntity);
+        when(restaurantEntityMapper.toModel(restaurantEntity)).thenReturn(restaurant);
+
+        Restaurant updatedRestaurant = restaurantJpaAdapter.updateRestaurant(restaurant);
+
+        assertNotNull(updatedRestaurant);
+        assertEquals(restaurant.getId(), updatedRestaurant.getId());
+        verify(restaurantEntityMapper).toEntity(restaurant);
+        verify(restaurantRepository).save(restaurantEntity);
+        verify(restaurantEntityMapper).toModel(restaurantEntity);
+    }
+
+    @Test
+    void findRestaurantByEmployeeId_ShouldReturnRestaurantId_WhenEmployeeExists() {
+        Long employeeId = 200L;
+        Long expectedRestaurantId = 1L;
+        when(restaurantRepository.findByEmployees_Id_EmployeeId(employeeId))
+                .thenReturn(Optional.of(restaurantEntity));
+
+        Long restaurantId = restaurantJpaAdapter.findRestaurantByEmployeeId(employeeId);
+
+        assertNotNull(restaurantId);
+        assertEquals(expectedRestaurantId, restaurantId);
+        verify(restaurantRepository).findByEmployees_Id_EmployeeId(employeeId);
+    }
+
+    @Test
+    void findRestaurantByEmployeeId_ShouldReturnNull_WhenEmployeeNotAssigned() {
+        Long employeeId = 200L;
+        when(restaurantRepository.findByEmployees_Id_EmployeeId(employeeId))
+                .thenReturn(Optional.empty());
+
+        Long restaurantId = restaurantJpaAdapter.findRestaurantByEmployeeId(employeeId);
+
+        assertNull(restaurantId);
+        verify(restaurantRepository).findByEmployees_Id_EmployeeId(employeeId);
     }
 }

@@ -2,10 +2,7 @@ package small_square_microservice.small_square.infrastructure.persistence.jpa.en
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "orders")
 public class OrderEntity {
 
@@ -32,7 +30,7 @@ public class OrderEntity {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "chef_id", nullable = false)
+    @Column(name = "chef_id")
     private Long chefId;
 
     @ManyToOne

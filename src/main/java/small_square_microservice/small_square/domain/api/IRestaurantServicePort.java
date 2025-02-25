@@ -8,4 +8,6 @@ public interface IRestaurantServicePort {
     Restaurant  registerRestaurant (Restaurant restaurant);
 
     Paginated<Restaurant> getAllRestaurants(int page, int size);
+
+    Restaurant updateRestaurantEmployees(Long restaurantId, Restaurant restaurant);
 }

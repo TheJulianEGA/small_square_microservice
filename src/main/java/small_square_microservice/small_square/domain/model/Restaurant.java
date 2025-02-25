@@ -1,9 +1,6 @@
 package small_square_microservice.small_square.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,6 +8,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Restaurant {
 
     private Long id;
@@ -22,5 +20,7 @@ public class Restaurant {
     private String nit;
     private List<Dish> dishes;
     private List<Order> orders;
+    private List<RestaurantEmployee> employeeIds;
+
 
 }

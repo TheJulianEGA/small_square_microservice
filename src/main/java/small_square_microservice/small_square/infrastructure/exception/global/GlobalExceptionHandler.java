@@ -15,28 +15,49 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(EmployeeAlreadyInAnotherRestaurantException.class)
+    public ResponseEntity<String> employeeAlreadyInAnotherRestaurantException(
+            EmployeeAlreadyInAnotherRestaurantException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EmployeeAlreadyInRestaurantException.class)
+    public ResponseEntity<String> employeeAlreadyInRestaurantException(EmployeeAlreadyInRestaurantException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DishNotAvailableException.class)
+    public ResponseEntity<String> dishNotAvailableException(DishNotAvailableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(OrderInProgressException.class)
+    public ResponseEntity<String> orderInProgressException(OrderInProgressException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(InvalidPaginationException.class)
-    public ResponseEntity<String> cartEmptyException(InvalidPaginationException ex) {
+    public ResponseEntity<String> i(InvalidPaginationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(DishNotFundException.class)
-    public ResponseEntity<String> cartEmptyException(DishNotFundException ex) {
+    @ExceptionHandler(DishNotFoundException.class)
+    public ResponseEntity<String> dishNotFundException(DishNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(CategoryNotFundException.class)
-    public ResponseEntity<String> cartEmptyException(CategoryNotFundException ex) {
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<String> categoryNotFundException(CategoryNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(RestaurantNotFundException.class)
-    public ResponseEntity<String> cartEmptyException(RestaurantNotFundException ex) {
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<String> restaurantNotFundException(RestaurantNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(UserIsNotOwnerException.class)
-    public ResponseEntity<String> cartEmptyException(UserIsNotOwnerException ex) {
+    public ResponseEntity<String> userIsNotOwnerException(UserIsNotOwnerException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
