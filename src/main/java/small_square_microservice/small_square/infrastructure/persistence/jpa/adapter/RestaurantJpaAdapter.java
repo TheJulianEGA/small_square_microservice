@@ -75,5 +75,4 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
                 .orElse(null);
     }
 
-
 }

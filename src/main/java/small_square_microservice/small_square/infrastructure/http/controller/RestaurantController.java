@@ -78,6 +78,24 @@ public class RestaurantController {
         return ResponseEntity.ok(paginatedRestaurants);
     }
 
+    @Operation(
+            summary = "Update restaurant employees",
+            description = "Allows the restaurant owner to add employees to the restaurant, " +
+                    "ensuring they have the required role and are not already assigned to another restaurant."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Employees updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = RestaurantResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User lacks necessary permissions",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Restaurant not found",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json"))
+    })
     @PreAuthorize(InfrastructureConstants.ROLE_OWNER)
     @PutMapping("/update-employees/{restaurantId}")
     public ResponseEntity<RestaurantResponse> updateRestaurantEmployees(

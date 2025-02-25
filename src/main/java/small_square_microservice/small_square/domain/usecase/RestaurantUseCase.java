@@ -10,7 +10,6 @@ import small_square_microservice.small_square.domain.spi.IUserFeignPersistencePo
 import small_square_microservice.small_square.domain.util.DomainConstants;
 import small_square_microservice.small_square.domain.util.Paginated;
 
-import java.util.stream.Collectors;
 
 public class RestaurantUseCase implements IRestaurantServicePort {
 
@@ -46,35 +45,44 @@ public class RestaurantUseCase implements IRestaurantServicePort {
 
     @Override
     public Restaurant updateRestaurantEmployees(Long restaurantId, Restaurant restaurant) {
-
         Restaurant restaurantToUpdate = validateRestaurantExists(restaurantId);
-
         validateOwnerPermission(restaurantToUpdate);
 
         for (RestaurantEmployee employee : restaurant.getEmployeeIds()) {
-            Long employeeId = employee.getEmployeeId();
+            validateEmployeeRole(employee.getEmployeeId());
+            validateEmployeeNotInAnotherRestaurant(employee.getEmployeeId(), restaurantId);
+            validateEmployeeNotAlreadyInRestaurant(employee.getEmployeeId(), restaurantToUpdate);
 
-            if (!userFeignPersistencePort.existsUserWithEmployeeRole(employeeId)) {
-                throw new UserIsNotOwnerException(DomainConstants.USER_IS_NOT_EMPLOYEE);
-            }
-
-            if (restaurantToUpdate.getEmployeeIds()
-                    .stream()
-                    .map(RestaurantEmployee::getEmployeeId)
-                    .toList()
-                    .contains(employeeId)) {
-                throw new EmployeeAlreadyInRestaurantException(DomainConstants.EMPLOYEE_ALREADY_IN_RESTAURANT);
-            }
-
-            Long existingRestaurantId = restaurantPersistencePort.findRestaurantByEmployeeId(employeeId);
-            if (existingRestaurantId != null && !existingRestaurantId.equals(restaurantId)) {
-                throw new EmployeeAlreadyInAnotherRestaurantException(DomainConstants.EMPLOYEE_ALREADY_IN_ANOTHER_RESTAURANT);
-            }
         }
 
         restaurantToUpdate.getEmployeeIds().addAll(restaurant.getEmployeeIds());
-
         return restaurantPersistencePort.updateRestaurant(restaurantToUpdate);
+    }
+
+
+    private void validateEmployeeRole(Long employeeId) {
+        if (!userFeignPersistencePort.existsUserWithEmployeeRole(employeeId)) {
+            throw new UserIsNotOwnerException(DomainConstants.USER_IS_NOT_EMPLOYEE);
+        }
+    }
+
+    private void validateEmployeeNotAlreadyInRestaurant(Long employeeId, Restaurant restaurantToUpdate) {
+        boolean alreadyInRestaurant = restaurantToUpdate.getEmployeeIds()
+                .stream()
+                .map(RestaurantEmployee::getEmployeeId)
+                .toList()
+                .contains(employeeId);
+
+        if (alreadyInRestaurant) {
+            throw new EmployeeAlreadyInRestaurantException(DomainConstants.EMPLOYEE_ALREADY_IN_RESTAURANT);
+        }
+    }
+
+    private void validateEmployeeNotInAnotherRestaurant(Long employeeId, Long restaurantId) {
+        Long existingRestaurantId = restaurantPersistencePort.findRestaurantByEmployeeId(employeeId);
+        if (existingRestaurantId != null && !existingRestaurantId.equals(restaurantId)) {
+            throw new EmployeeAlreadyInAnotherRestaurantException(DomainConstants.EMPLOYEE_ALREADY_IN_ANOTHER_RESTAURANT);
+        }
     }
 
 

@@ -6,21 +6,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
-import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
+import small_square_microservice.small_square.domain.exception.*;
 import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.model.RestaurantEmployee;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.spi.IUserFeignPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
 import small_square_microservice.small_square.domain.util.Paginated;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class RestaurantUseCaseTest {
 
@@ -37,13 +37,19 @@ class RestaurantUseCaseTest {
     private IAuthenticationSecurityPort authenticationSecurityPort;
 
     private Restaurant restaurant;
+    private Restaurant updatedRestaurant;
 
     @BeforeEach
     void setUp() {
         restaurant = new Restaurant();
         restaurant.setId(1L);
         restaurant.setOwnerId(100L);
-        restaurant.setEmployeeIds(List.of(200L, 201L));
+        restaurant.setEmployeeIds(new ArrayList<>());
+
+        updatedRestaurant = new Restaurant();
+        updatedRestaurant.setId(1L);
+        updatedRestaurant.setOwnerId(100L);
+        updatedRestaurant.setEmployeeIds(new ArrayList<>(List.of(new RestaurantEmployee(1L, 200L))));
     }
 
     @Test
@@ -97,26 +103,11 @@ class RestaurantUseCaseTest {
     }
 
     @Test
-    void updateRestaurantEmployees_ShouldUpdateSuccessfully_WhenOwnerHasPermission() {
-        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
-        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
-        when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
-        when(userFeignPersistencePort.existsUserWithEmployeeRole(201L)).thenReturn(true);
-        when(restaurantPersistencePort.updateRestaurant(any(Restaurant.class))).thenReturn(restaurant);
-
-        Restaurant updatedRestaurant = restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant);
-
-        assertNotNull(updatedRestaurant);
-        assertEquals(restaurant.getEmployeeIds().size(), updatedRestaurant.getEmployeeIds().size());
-        verify(restaurantPersistencePort).updateRestaurant(any(Restaurant.class));
-    }
-
-    @Test
     void updateRestaurantEmployees_ShouldThrowException_WhenRestaurantDoesNotExist() {
         when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(null);
 
         assertThrows(RestaurantNotFoundException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant));
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
 
         verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
     }
@@ -127,8 +118,10 @@ class RestaurantUseCaseTest {
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(999L);
 
         assertThrows(UserIsNotOwnerException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant));
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
 
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
         verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
     }
 
@@ -139,8 +132,66 @@ class RestaurantUseCaseTest {
         when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(false);
 
         assertThrows(UserIsNotOwnerException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant));
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(userFeignPersistencePort, times(1)).existsUserWithEmployeeRole(200L);
+        verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldThrowException_WhenEmployeeIsAlreadyInAnotherRestaurant() {
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
+        when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
+        when(restaurantPersistencePort.findRestaurantByEmployeeId(200L)).thenReturn(2L);
+
+        assertThrows(EmployeeAlreadyInAnotherRestaurantException.class,
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(userFeignPersistencePort, times(1)).existsUserWithEmployeeRole(200L);
+        verify(restaurantPersistencePort, times(1)).findRestaurantByEmployeeId(200L);
+        verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldThrowException_WhenEmployeeIsAlreadyInSameRestaurant() {
+        restaurant.getEmployeeIds().add(new RestaurantEmployee(1L, 200L));
+
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
+        when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
+        when(restaurantPersistencePort.findRestaurantByEmployeeId(200L)).thenReturn(1L);
+
+        assertThrows(EmployeeAlreadyInRestaurantException.class,
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
 
         verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(userFeignPersistencePort, times(1)).existsUserWithEmployeeRole(200L);
+        verify(restaurantPersistencePort, times(1)).findRestaurantByEmployeeId(200L);
+
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldUpdateRestaurant_WhenEmployeesAreValid() {
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
+        when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
+        when(restaurantPersistencePort.findRestaurantByEmployeeId(200L)).thenReturn(null);
+        when(restaurantPersistencePort.updateRestaurant(any(Restaurant.class))).thenReturn(updatedRestaurant);
+
+        Restaurant result = restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant);
+
+        assertNotNull(result);
+        assertEquals(1, result.getEmployeeIds().size());
+        verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(userFeignPersistencePort, times(1)).existsUserWithEmployeeRole(200L);
+        verify(restaurantPersistencePort, times(1)).findRestaurantByEmployeeId(200L);
+        verify(restaurantPersistencePort, times(1)).updateRestaurant(any(Restaurant.class));
     }
 }
