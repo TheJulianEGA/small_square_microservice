@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.CategoryEntity;
 
-import java.util.ArrayList;
 
 @Component
 public class CategoryEntityMapper implements ICategoryEntityMapper {

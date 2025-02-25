@@ -3,6 +3,7 @@ package small_square_microservice.small_square.domain.usecase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -106,8 +107,8 @@ class RestaurantUseCaseTest {
     void updateRestaurantEmployees_ShouldThrowException_WhenRestaurantDoesNotExist() {
         when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(null);
 
-        assertThrows(RestaurantNotFoundException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+        Executable action = () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant);
+        assertThrows(RestaurantNotFoundException.class, action);
 
         verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
     }
@@ -117,8 +118,8 @@ class RestaurantUseCaseTest {
         when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(999L);
 
-        assertThrows(UserIsNotOwnerException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+        Executable action = () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant);
+        assertThrows(UserIsNotOwnerException.class, action);
 
         verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
@@ -131,8 +132,8 @@ class RestaurantUseCaseTest {
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
         when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(false);
 
-        assertThrows(UserIsNotOwnerException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+        Executable action = () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant);
+        assertThrows(UserIsNotOwnerException.class, action);
 
         verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
@@ -147,8 +148,8 @@ class RestaurantUseCaseTest {
         when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
         when(restaurantPersistencePort.findRestaurantByEmployeeId(200L)).thenReturn(2L);
 
-        assertThrows(EmployeeAlreadyInAnotherRestaurantException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+        Executable action = () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant);
+        assertThrows(EmployeeAlreadyInAnotherRestaurantException.class, action);
 
         verify(restaurantPersistencePort, times(1)).getRestaurantById(restaurant.getId());
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
@@ -166,8 +167,8 @@ class RestaurantUseCaseTest {
         when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
         when(restaurantPersistencePort.findRestaurantByEmployeeId(200L)).thenReturn(1L);
 
-        assertThrows(EmployeeAlreadyInRestaurantException.class,
-                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant));
+        Executable action = () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), updatedRestaurant);
+        assertThrows(EmployeeAlreadyInRestaurantException.class, action);
 
         verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();

@@ -8,7 +8,6 @@ import small_square_microservice.small_square.infrastructure.persistence.jpa.ent
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.DishEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
 
-import java.util.ArrayList;
 
 @Component
 public class DishEntityMapper implements IDishEntityMapper {

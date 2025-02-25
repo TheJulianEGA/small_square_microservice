@@ -7,6 +7,7 @@ import small_square_microservice.small_square.infrastructure.persistence.jpa.ent
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.compositeprimarykey.RestaurantEmployeeKey;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class RestaurantEntityMapper implements IRestaurantEntityMapper {
                         .id(new RestaurantEmployeeKey(emp.getRestaurantId(), emp.getEmployeeId()))
                         .restaurant(restaurantEntity)
                         .build())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toCollection(ArrayList::new)));
 
         return restaurantEntity;
     }
@@ -56,7 +57,7 @@ public class RestaurantEntityMapper implements IRestaurantEntityMapper {
                                 employeeEntity.getId().getRestaurantId(),
                                 employeeEntity.getId().getEmployeeId()
                         ))
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toCollection(ArrayList::new)))
                 .build();
     }
 }

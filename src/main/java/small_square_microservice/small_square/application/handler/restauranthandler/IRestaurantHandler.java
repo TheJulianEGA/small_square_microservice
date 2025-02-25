@@ -1,6 +1,5 @@
 package small_square_microservice.small_square.application.handler.restauranthandler;
 
-import jakarta.validation.Valid;
 import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
