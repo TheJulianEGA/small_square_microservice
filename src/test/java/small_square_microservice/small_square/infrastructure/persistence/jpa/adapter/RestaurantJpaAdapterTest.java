@@ -135,4 +135,20 @@ class RestaurantJpaAdapterTest {
         assertTrue(result.getContent().isEmpty());
         verify(restaurantRepository).findAll(any(Pageable.class));
     }
+
+    @Test
+    void updateRestaurant_ShouldReturnUpdatedRestaurant() {
+
+        when(restaurantEntityMapper.toEntity(restaurant)).thenReturn(restaurantEntity);
+        when(restaurantRepository.save(restaurantEntity)).thenReturn(restaurantEntity);
+        when(restaurantEntityMapper.toModel(restaurantEntity)).thenReturn(restaurant);
+
+        Restaurant updatedRestaurant = restaurantJpaAdapter.updateRestaurant(restaurant);
+
+        assertNotNull(updatedRestaurant);
+        assertEquals(restaurant.getId(), updatedRestaurant.getId());
+        verify(restaurantEntityMapper).toEntity(restaurant);
+        verify(restaurantRepository).save(restaurantEntity);
+        verify(restaurantEntityMapper).toModel(restaurantEntity);
+    }
 }

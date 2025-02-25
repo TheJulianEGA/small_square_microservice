@@ -1,11 +1,11 @@
 package small_square_microservice.small_square.application.dto.restaurantdto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class RestaurantResponseForPagination {
 

@@ -15,6 +15,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(EmployeeAlreadyInRestaurantException.class)
+    public ResponseEntity<String> employeeAlreadyInRestaurantException(EmployeeAlreadyInRestaurantException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(DishNotAvailableException.class)
     public ResponseEntity<String> dishNotAvailableException(DishNotAvailableException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());

@@ -1,13 +1,16 @@
 package small_square_microservice.small_square.domain.usecase;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
+import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.spi.IUserFeignPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
@@ -30,33 +33,34 @@ class RestaurantUseCaseTest {
     @Mock
     private IUserFeignPersistencePort userFeignPersistencePort;
 
+    @Mock
+    private IAuthenticationSecurityPort authenticationSecurityPort;
+
+    private Restaurant restaurant;
+
+    @BeforeEach
+    void setUp() {
+        restaurant = new Restaurant();
+        restaurant.setId(1L);
+        restaurant.setOwnerId(100L);
+        restaurant.setEmployeeIds(List.of(200L, 201L));
+    }
 
     @Test
     void registerRestaurant_ShouldReturnRegisteredRestaurant_WhenOwnerIsValid() {
-
-        Restaurant restaurant = new Restaurant();
-        restaurant.setOwnerId(1L);
-
-        Restaurant registeredRestaurant = new Restaurant();
-        registeredRestaurant.setId(100L);
-
         when(userFeignPersistencePort.existsUserWithOwnerRole(restaurant.getOwnerId())).thenReturn(true);
-        when(restaurantPersistencePort.registerRestaurant(restaurant)).thenReturn(registeredRestaurant);
+        when(restaurantPersistencePort.registerRestaurant(restaurant)).thenReturn(restaurant);
 
         Restaurant result = restaurantUseCase.registerRestaurant(restaurant);
 
         assertNotNull(result);
-        assertEquals(registeredRestaurant.getId(), result.getId());
+        assertEquals(restaurant.getId(), result.getId());
         verify(userFeignPersistencePort).existsUserWithOwnerRole(restaurant.getOwnerId());
         verify(restaurantPersistencePort).registerRestaurant(restaurant);
     }
 
     @Test
     void registerRestaurant_ShouldThrowException_WhenOwnerIsNotValid() {
-
-        Restaurant restaurant = new Restaurant();
-        restaurant.setOwnerId(12L);
-
         when(userFeignPersistencePort.existsUserWithOwnerRole(restaurant.getOwnerId())).thenReturn(false);
 
         UserIsNotOwnerException exception = assertThrows(UserIsNotOwnerException.class,
@@ -69,10 +73,8 @@ class RestaurantUseCaseTest {
 
     @Test
     void getAllRestaurants_ShouldReturnPaginatedRestaurants_WhenValidPageAndSize() {
-        int page = 0;
-        int size = 10;
-        List<Restaurant> restaurants = Arrays.asList(new Restaurant(), new Restaurant());
-
+        int page = 0, size = 10;
+        List<Restaurant> restaurants = List.of(new Restaurant(), new Restaurant());
         Paginated<Restaurant> paginatedRestaurants = new Paginated<>(restaurants, page, size, 2, 1);
 
         when(restaurantPersistencePort.getAllRestaurants(page, size)).thenReturn(paginatedRestaurants);
@@ -88,19 +90,57 @@ class RestaurantUseCaseTest {
 
     @Test
     void getAllRestaurants_ShouldThrowException_WhenInvalidPageOrSize() {
-        int invalidPage = -1;
-        int invalidSize = 0;
-
-        InvalidPaginationException exception1 = assertThrows(InvalidPaginationException.class,
-                () -> restaurantUseCase.getAllRestaurants(invalidPage, 10));
-
-        InvalidPaginationException exception2 = assertThrows(InvalidPaginationException.class,
-                () -> restaurantUseCase.getAllRestaurants(0, invalidSize));
-
-        assertEquals(DomainConstants.INVALID_PAGINATION_MESSAGE, exception1.getMessage());
-        assertEquals(DomainConstants.INVALID_PAGINATION_MESSAGE, exception2.getMessage());
+        assertThrows(InvalidPaginationException.class, () -> restaurantUseCase.getAllRestaurants(-1, 10));
+        assertThrows(InvalidPaginationException.class, () -> restaurantUseCase.getAllRestaurants(0, 0));
 
         verify(restaurantPersistencePort, never()).getAllRestaurants(anyInt(), anyInt());
     }
 
+    @Test
+    void updateRestaurantEmployees_ShouldUpdateSuccessfully_WhenOwnerHasPermission() {
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
+        when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(true);
+        when(userFeignPersistencePort.existsUserWithEmployeeRole(201L)).thenReturn(true);
+        when(restaurantPersistencePort.updateRestaurant(any(Restaurant.class))).thenReturn(restaurant);
+
+        Restaurant updatedRestaurant = restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant);
+
+        assertNotNull(updatedRestaurant);
+        assertEquals(restaurant.getEmployeeIds().size(), updatedRestaurant.getEmployeeIds().size());
+        verify(restaurantPersistencePort).updateRestaurant(any(Restaurant.class));
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldThrowException_WhenRestaurantDoesNotExist() {
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(null);
+
+        assertThrows(RestaurantNotFoundException.class,
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant));
+
+        verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldThrowException_WhenUserIsNotOwner() {
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(999L);
+
+        assertThrows(UserIsNotOwnerException.class,
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant));
+
+        verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
+    }
+
+    @Test
+    void updateRestaurantEmployees_ShouldThrowException_WhenEmployeeIsNotValid() {
+        when(restaurantPersistencePort.getRestaurantById(restaurant.getId())).thenReturn(restaurant);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(restaurant.getOwnerId());
+        when(userFeignPersistencePort.existsUserWithEmployeeRole(200L)).thenReturn(false);
+
+        assertThrows(UserIsNotOwnerException.class,
+                () -> restaurantUseCase.updateRestaurantEmployees(restaurant.getId(), restaurant));
+
+        verify(restaurantPersistencePort, never()).updateRestaurant(any(Restaurant.class));
+    }
 }

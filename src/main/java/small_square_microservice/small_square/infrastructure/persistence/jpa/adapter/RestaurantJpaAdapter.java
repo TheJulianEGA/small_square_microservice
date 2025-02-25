@@ -67,4 +67,10 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
 
         return restaurantEntityMapper.toModel(restaurantEntity);
     }
+
+    @Override
+    public boolean isEmployeeInAnotherRestaurant(Long employeeId, Long restaurantId) {
+        return false;
+    }
+
 }

@@ -1,6 +1,7 @@
 package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
+import small_square_microservice.small_square.domain.exception.EmployeeAlreadyInRestaurantException;
 import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
 import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
@@ -54,9 +55,19 @@ public class RestaurantUseCase implements IRestaurantServicePort {
             if (!userFeignPersistencePort.existsUserWithEmployeeRole(employeeId)) {
                 throw new UserIsNotOwnerException(DomainConstants.USER_IS_NOT_EMPLOYEE);
             }
+
+            if (restaurantToUpdate.getEmployeeIds().contains(employeeId)) {
+                throw new EmployeeAlreadyInRestaurantException(DomainConstants.EMPLOYEE_ALREADY_IN_RESTAURANT);
+            }
+
+            if (restaurantPersistencePort.isEmployeeInAnotherRestaurant(employeeId, restaurantId)) {
+                throw new EmployeeAlreadyInRestaurantException(DomainConstants.EMPLOYEE_ASSIGNED_TO_ANOTHER_RESTAURANT);
+            }
+
+
         }
 
-        restaurantToUpdate.setEmployeeIds(restaurant.getEmployeeIds());
+        restaurantToUpdate.getEmployeeIds().addAll(restaurant.getEmployeeIds());
 
         return restaurantPersistencePort.updateRestaurant(restaurantToUpdate);
     }

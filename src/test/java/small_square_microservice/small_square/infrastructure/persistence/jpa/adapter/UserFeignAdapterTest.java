@@ -43,4 +43,26 @@ class UserFeignAdapterTest {
         assertFalse(result);
         verify(userFeignClient,times(1)).existsUserWithOwnerRole(userId);
     }
+
+    @Test
+    void existsUserWithEmployeeRole_ShouldReturnTrue_WhenUserExists() {
+
+        when(userFeignClient.existsUserWithEmployeeRole(userId)).thenReturn(true);
+
+        boolean result = userFeignAdapter.existsUserWithEmployeeRole(userId);
+
+        assertTrue(result);
+        verify(userFeignClient, times(1)).existsUserWithEmployeeRole(userId);
+    }
+
+    @Test
+    void existsUserWithEmployeeRole_ShouldReturnFalse_WhenUserDoesNotExist() {
+
+        when(userFeignClient.existsUserWithEmployeeRole(userId)).thenThrow(FeignException.NotFound.class);
+
+        boolean result = userFeignAdapter.existsUserWithEmployeeRole(userId);
+
+        assertFalse(result);
+        verify(userFeignClient, times(1)).existsUserWithEmployeeRole(userId);
+    }
 }
