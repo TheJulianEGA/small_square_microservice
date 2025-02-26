@@ -75,7 +75,7 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(false);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(false);
         when(dishPersistencePort.getDishById(orderDish.getDish().getId())).thenReturn(dish);
         when(orderPersistencePort.createOrder(any(Order.class))).thenReturn(order);
 
@@ -89,7 +89,7 @@ class OrderUseCaseTest {
         verify(restaurantPersistencePort, times(1))
                 .getRestaurantById(order.getRestaurant().getId());
         verify(dishPersistencePort, times(1)).getDishById(orderDish.getDish().getId());
-        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId);
+        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId,restaurant.getId());
     }
 
     @Test
@@ -105,9 +105,16 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(true);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(true);
 
         assertThrows(OrderInProgressException.class, () -> orderUseCase.createOrder(order));
+
+        verify(authenticationSecurityPort,times(1))
+                .getAuthenticatedUserId();
+        verify(restaurantPersistencePort,times(1))
+                .getRestaurantById(order.getRestaurant().getId());
+        verify(orderPersistencePort,times(1))
+                .hasPendingOrInProgressOrder(clientId, restaurant.getId());
     }
 
     @Test
@@ -116,7 +123,7 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(false);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(false);
         when(dishPersistencePort.getDishById(orderDish.getDish().getId())).thenReturn(null);
 
         assertThrows(DishNotFoundException.class, () -> orderUseCase.createOrder(order));
@@ -124,7 +131,8 @@ class OrderUseCaseTest {
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
         verify(restaurantPersistencePort, times(1))
                 .getRestaurantById(order.getRestaurant().getId());
-        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId);
+        verify(orderPersistencePort, times(1))
+                .hasPendingOrInProgressOrder(clientId,restaurant.getId());
     }
 
     @Test
@@ -134,7 +142,7 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(false);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(false);
         when(dishPersistencePort.getDishById(orderDish.getDish().getId())).thenReturn(dish);
 
         assertThrows(DishNotAvailableException.class, () -> orderUseCase.createOrder(order));
@@ -142,7 +150,8 @@ class OrderUseCaseTest {
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
         verify(restaurantPersistencePort, times(1))
                 .getRestaurantById(order.getRestaurant().getId());
-        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId);
+        verify(orderPersistencePort, times(1))
+                .hasPendingOrInProgressOrder(clientId,restaurant.getId());
     }
 
     @Test
@@ -218,5 +227,103 @@ class OrderUseCaseTest {
                 .getRestaurantByEmployeeId(authenticatedEmployeeId);
         verifyNoInteractions(orderPersistencePort);
     }
+
+    @Test
+    void assignOrder_ShouldAssignOrderSuccessfully_WhenValidOrderIdIsProvided() {
+        Long orderId = 1L;
+        Long employeeId = 100L;
+        Long restaurantId = 1L;
+
+        order.setId(orderId);
+        order.setChefId(null);
+        order.setRestaurant(restaurant);
+
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(employeeId);
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(order);
+        when(restaurantPersistencePort.getRestaurantByEmployeeId(employeeId)).thenReturn(restaurantId);
+        when(orderPersistencePort.isOrderAssignedToEmployee(orderId, employeeId)).thenReturn(false);
+        when(orderPersistencePort.updateOrder(order)).thenReturn(order);
+
+        Order result = orderUseCase.assignOrder(orderId);
+
+        assertNotNull(result);
+        assertEquals(orderId, result.getId());
+        assertEquals(employeeId, result.getChefId());
+        assertNotNull(result.getOrderPreparationDate());
+
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(orderPersistencePort, times(1)).getOrderById(orderId);
+        verify(restaurantPersistencePort, times(1)).getRestaurantByEmployeeId(employeeId);
+        verify(orderPersistencePort, times(1)).isOrderAssignedToEmployee(orderId, employeeId);
+        verify(orderPersistencePort, times(1)).updateOrder(order);
+    }
+
+
+    @Test
+    void assignOrder_ShouldThrowOrderNotFoundException_WhenOrderDoesNotBelongToEmployeeRestaurant() {
+        Long orderId = 1L;
+        Long employeeId = 100L;
+        Long differentRestaurantId = 2L;
+
+        order.setId(orderId);
+        order.setRestaurant(restaurant);
+
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(employeeId);
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(order);
+        when(restaurantPersistencePort.getRestaurantByEmployeeId(employeeId)).thenReturn(differentRestaurantId);
+
+        assertThrows(OrderNotFoundException.class, () -> orderUseCase.assignOrder(orderId));
+
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(orderPersistencePort, times(1)).getOrderById(orderId);
+        verify(restaurantPersistencePort, times(1)).getRestaurantByEmployeeId(employeeId);
+        verifyNoMoreInteractions(orderPersistencePort);
+    }
+
+    @Test
+    void assignOrder_ShouldThrowOrderAlreadyAssignedException_WhenOrderIsAssignedToAnotherEmployee() {
+        Long orderId = 1L;
+        Long employeeId = 100L;
+        Long anotherEmployeeId = 200L;
+
+        order.setId(orderId);
+        order.setChefId(anotherEmployeeId);
+        order.setRestaurant(restaurant);
+
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(employeeId);
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(order);
+        when(restaurantPersistencePort.getRestaurantByEmployeeId(employeeId)).thenReturn(restaurant.getId());
+
+        assertThrows(OrderAlreadyAssignedException.class, () -> orderUseCase.assignOrder(orderId));
+
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(orderPersistencePort, times(1)).getOrderById(orderId);
+        verify(restaurantPersistencePort, times(1)).getRestaurantByEmployeeId(employeeId);
+        verifyNoMoreInteractions(orderPersistencePort);
+    }
+
+    @Test
+    void assignOrder_ShouldThrowOrderAlreadyAssignedException_WhenOrderIsAlreadyAssignedToSameEmployee() {
+        Long orderId = 1L;
+        Long employeeId = 100L;
+
+        order.setId(orderId);
+        order.setChefId(employeeId);
+        order.setRestaurant(restaurant);
+
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(employeeId);
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(order);
+        when(restaurantPersistencePort.getRestaurantByEmployeeId(employeeId)).thenReturn(restaurant.getId());
+        when(orderPersistencePort.isOrderAssignedToEmployee(orderId, employeeId)).thenReturn(true);
+
+        assertThrows(OrderAlreadyAssignedException.class, () -> orderUseCase.assignOrder(orderId));
+
+        verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
+        verify(orderPersistencePort, times(1)).getOrderById(orderId);
+        verify(restaurantPersistencePort, times(1)).getRestaurantByEmployeeId(employeeId);
+        verify(orderPersistencePort, times(1)).isOrderAssignedToEmployee(orderId, employeeId);
+        verifyNoMoreInteractions(orderPersistencePort);
+    }
+
 
 }

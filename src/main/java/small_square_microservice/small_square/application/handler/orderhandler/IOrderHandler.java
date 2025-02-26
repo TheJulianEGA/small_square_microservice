@@ -8,4 +8,6 @@ public interface IOrderHandler {
     OrderResponse createOrder(OrderRequest orderRequest);
 
     Paginated<OrderResponse> getOrdersByStatus( String status, int page, int size);
+
+    OrderResponse assignOrder(Long orderId);
 }

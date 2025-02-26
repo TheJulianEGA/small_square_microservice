@@ -14,7 +14,8 @@ public class Order {
 
     private Long id;
     private Long clientId;
-    private LocalDateTime date;
+    private LocalDateTime orderPendingDate;
+    private LocalDateTime orderPreparationDate;
     private String status;
     private Long chefId;
     private Restaurant restaurant;

@@ -19,6 +19,8 @@ public class InfrastructureConstants {
     public static final String STATUS_IN_PREPARATION = "in preparation";
     public static final String STATUS_READY = "ready";
     public static final String ROLE_EMPLOYEE = "hasRole('EMPLOYEE')";
+    public static final String STATUS_DELIVERY = "delivery";
+    public static final String ORDER_NOT_FOUND = "The order not found";
 
 
     private InfrastructureConstants() {

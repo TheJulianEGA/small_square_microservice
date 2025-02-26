@@ -93,4 +93,19 @@ class OrderHandlerTest {
         verify(orderServicePort, times(1)).getOrdersByStatus(status, page, size);
         verify(orderMapper, times(1)).toResponse(order);
     }
+
+    @Test
+    void assignOrder_ShouldReturnOrderResponse_WhenOrderIsAssignedSuccessfully() {
+        Long orderId = 1L;
+
+        when(orderServicePort.assignOrder(orderId)).thenReturn(order);
+        when(orderMapper.toResponse(order)).thenReturn(orderResponse);
+
+        OrderResponse result = orderHandler.assignOrder(orderId);
+
+        assertNotNull(result);
+        assertEquals(orderResponse.getId(), result.getId());
+        verify(orderServicePort, times(1)).assignOrder(orderId);
+        verify(orderMapper, times(1)).toResponse(order);
+    }
 }

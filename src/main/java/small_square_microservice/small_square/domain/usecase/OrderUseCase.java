@@ -15,6 +15,7 @@ import small_square_microservice.small_square.domain.util.Paginated;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 
 public class OrderUseCase implements IOrderServicePort {
@@ -38,13 +39,14 @@ public class OrderUseCase implements IOrderServicePort {
     public Order createOrder(Order order) {
         Long clientId = authenticationSecurityPort.getAuthenticatedUserId();
 
+
         Restaurant restaurant = validateRestaurant(order.getRestaurant().getId());
-        validateNoPendingOrder(clientId);
+        validateNoPendingOrder(clientId,restaurant.getId());
         validateOrderDishes(order.getOrderDishes(), restaurant);
 
         order.setClientId(clientId);
         order.setStatus(DomainConstants.STATUS_PENDING);
-        order.setDate(LocalDateTime.now());
+        order.setOrderPendingDate(LocalDateTime.now());
 
         return orderPersistencePort.createOrder(order);
     }
@@ -67,6 +69,39 @@ public class OrderUseCase implements IOrderServicePort {
         return orderPersistencePort.getOrdersByStatus(restaurantId, status, page, size);
     }
 
+    @Override
+    public Order assignOrder(Long orderId) {
+        Long employeeId = authenticationSecurityPort.getAuthenticatedUserId();
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        validateOrderBelongsToEmployeeRestaurant(order, employeeId);
+        validateOrderNotAssignedToAnotherEmployee(order, employeeId);
+        validateOrderNotAlreadyAssignedToEmployee(orderId, employeeId);
+
+        order.setChefId(employeeId);
+        order.setOrderPreparationDate(LocalDateTime.now());
+
+        return orderPersistencePort.updateOrder(order);
+    }
+
+    private void validateOrderBelongsToEmployeeRestaurant(Order order, Long employeeId) {
+        Long employeeRestaurantId = restaurantPersistencePort.getRestaurantByEmployeeId(employeeId);
+        if (!Objects.equals(order.getRestaurant().getId(), employeeRestaurantId)) {
+            throw new OrderNotFoundException(DomainConstants.ORDER_NOT_FOUND);
+        }
+    }
+
+    private void validateOrderNotAssignedToAnotherEmployee(Order order, Long employeeId) {
+        if (order.getChefId() != null && !Objects.equals(order.getChefId(), employeeId)) {
+            throw new OrderAlreadyAssignedException(DomainConstants.ORDER_ASSIGNED_TO_ANOTHER_EMPLOYEE);
+        }
+    }
+
+    private void validateOrderNotAlreadyAssignedToEmployee(Long orderId, Long employeeId) {
+        if (orderPersistencePort.isOrderAssignedToEmployee(orderId, employeeId)) {
+            throw new OrderAlreadyAssignedException(DomainConstants.ORDER_ASSIGNED_TO_EMPLOYEE);
+        }
+    }
 
     private Restaurant validateRestaurant(Long restaurantId) {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(restaurantId);
@@ -76,8 +111,8 @@ public class OrderUseCase implements IOrderServicePort {
         return restaurant;
     }
 
-    private void validateNoPendingOrder(Long clientId) {
-        if (orderPersistencePort.hasPendingOrInProgressOrder(clientId)) {
+    private void validateNoPendingOrder(Long clientId, Long restaurantId) {
+        if (orderPersistencePort.hasPendingOrInProgressOrder(clientId, restaurantId)) {
             throw new OrderInProgressException(DomainConstants.ORDER_IN_PROGRESS);
         }
     }
