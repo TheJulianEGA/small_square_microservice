@@ -90,4 +90,19 @@ class OrderControllerTest {
 
         verify(orderHandler, times(1)).getOrdersByStatus(status, page, size);
     }
+
+    @Test
+    void assignOrder_ShouldReturnOk_WhenOrderIsAssignedSuccessfully() throws Exception {
+        Long orderId = 1L;
+
+        when(orderHandler.assignOrder(orderId)).thenReturn(orderResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/small_square/order/assign_employee/{orderId}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(orderResponse)));
+
+        verify(orderHandler, times(1)).assignOrder(orderId);
+    }
 }

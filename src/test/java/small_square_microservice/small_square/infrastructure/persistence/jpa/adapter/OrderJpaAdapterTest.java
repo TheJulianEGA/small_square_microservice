@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import small_square_microservice.small_square.domain.exception.OrderNotFoundException;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.OrderEntity;
@@ -14,6 +15,7 @@ import small_square_microservice.small_square.infrastructure.persistence.jpa.map
 import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IOrderRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -117,4 +119,71 @@ class OrderJpaAdapterTest {
         verify(orderMapper,times(1)).toModel(any(OrderEntity.class));
     }
 
+    @Test
+    void getOrderById_ShouldReturnOrder_WhenOrderExists() {
+        Long orderId = 1L;
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
+        when(orderMapper.toModel(orderEntity)).thenReturn(order);
+
+        Order result = orderJpaAdapter.getOrderById(orderId);
+
+        assertNotNull(result);
+        assertEquals(order.getId(), result.getId());
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderMapper, times(1)).toModel(orderEntity);
+    }
+
+    @Test
+    void getOrderById_ShouldThrowException_WhenOrderDoesNotExist() {
+        Long orderId = 1L;
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(OrderNotFoundException.class, () -> orderJpaAdapter.getOrderById(orderId));
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderMapper, never()).toModel(any());
+    }
+
+    @Test
+    void isOrderAssignedToEmployee_ShouldReturnTrue_WhenOrderIsAssigned() {
+        Long orderId = 1L;
+        Long employeeId = 2L;
+
+        when(orderRepository.existsByIdAndChefId(orderId, employeeId)).thenReturn(true);
+
+        boolean result = orderJpaAdapter.isOrderAssignedToEmployee(orderId, employeeId);
+
+        assertTrue(result);
+        verify(orderRepository, times(1)).existsByIdAndChefId(orderId, employeeId);
+    }
+
+    @Test
+    void isOrderAssignedToEmployee_ShouldReturnFalse_WhenOrderIsNotAssigned() {
+        Long orderId = 1L;
+        Long employeeId = 2L;
+
+        when(orderRepository.existsByIdAndChefId(orderId, employeeId)).thenReturn(false);
+
+        boolean result = orderJpaAdapter.isOrderAssignedToEmployee(orderId, employeeId);
+
+        assertFalse(result);
+        verify(orderRepository, times(1)).existsByIdAndChefId(orderId, employeeId);
+    }
+
+    @Test
+    void updateOrder_ShouldReturnUpdatedOrder_WhenOrderIsUpdatedSuccessfully() {
+        when(orderMapper.toEntity(order)).thenReturn(orderEntity);
+        when(orderRepository.save(orderEntity)).thenReturn(orderEntity);
+        when(orderMapper.toModel(orderEntity)).thenReturn(order);
+
+        Order result = orderJpaAdapter.updateOrder(order);
+
+        assertNotNull(result);
+        assertEquals(order.getId(), result.getId());
+        verify(orderRepository, times(1)).save(orderEntity);
+        verify(orderMapper, times(1)).toEntity(order);
+        verify(orderMapper, times(1)).toModel(orderEntity);
+    }
 }
+
