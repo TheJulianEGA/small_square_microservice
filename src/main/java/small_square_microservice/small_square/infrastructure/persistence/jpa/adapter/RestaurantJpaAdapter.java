@@ -12,6 +12,7 @@ import small_square_microservice.small_square.domain.spi.IRestaurantPersistenceP
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.restaurantmapper.IRestaurantEntityMapper;
+import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IRestaurantEmployeeRepository;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IRestaurantRepository;
 import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
@@ -23,6 +24,7 @@ import java.util.List;
 public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
 
     private final IRestaurantRepository restaurantRepository;
+    private final IRestaurantEmployeeRepository restaurantEmployeeRepository;
     private final IRestaurantEntityMapper restaurantEntityMapper;
 
     @Override
@@ -72,6 +74,13 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
     public Long findRestaurantByEmployeeId(Long employeeId) {
         return restaurantRepository.findByEmployees_Id_EmployeeId(employeeId)
                 .map(RestaurantEntity::getId)
+                .orElse(null);
+    }
+
+    @Override
+    public Long getRestaurantByEmployeeId(Long employeeId) {
+        return restaurantEmployeeRepository.findByIdEmployeeId(employeeId)
+                .map(employee -> employee.getId().getRestaurantId())
                 .orElse(null);
     }
 

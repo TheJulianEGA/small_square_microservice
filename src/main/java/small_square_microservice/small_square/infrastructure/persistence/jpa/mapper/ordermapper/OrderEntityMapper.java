@@ -47,6 +47,7 @@ public class OrderEntityMapper implements IOrderEntityMapper {
     public Order toModel(OrderEntity entity) {
         return Order.builder()
                 .id(entity.getId())
+                .chefId(entity.getChefId())
                 .clientId(entity.getClientId())
                 .date(entity.getDate())
                 .status(entity.getStatus())

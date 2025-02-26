@@ -46,5 +46,4 @@ public class RestaurantEntity {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RestaurantEmployeeEntity> employees;
 
-
 }

@@ -22,8 +22,9 @@ public class DomainConstants {
         public static final String DISH_NOT_AVAILABLE = "Dish not available";
         public static final String EMPLOYEE_ALREADY_IN_RESTAURANT = "Employee already in restaurant";
         public static final String EMPLOYEE_ALREADY_IN_ANOTHER_RESTAURANT = "Employee already in another restaurant";
+        public static final String EMPLOYEE_NOT_ASSOCIATED_WITH_RESTAURANT = "Employee not associated with restaurant";
 
 
-    private DomainConstants() {
+        private DomainConstants() {
         }
 }

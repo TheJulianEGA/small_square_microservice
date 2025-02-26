@@ -1,10 +1,15 @@
 package small_square_microservice.small_square.infrastructure.persistence.jpa.adapter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
+import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.OrderEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.ordermapper.IOrderEntityMapper;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IOrderRepository;
@@ -25,6 +30,26 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
         OrderEntity orderEntity = orderMapper.toEntity(order);
 
         return orderMapper.toModel(orderRepository.save(orderEntity));
+    }
+
+    @Override
+    public Paginated<Order> getOrdersByStatus(Long restaurantId, String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
+
+        Page<OrderEntity> orderPage = orderRepository.findByRestaurantIdAndStatus(restaurantId, status, pageable);
+
+        List<Order> orders = orderPage.getContent()
+                .stream()
+                .map(orderMapper::toModel)
+                .toList();
+
+        return new Paginated<>(
+                orders,
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages()
+        );
     }
 
     @Override

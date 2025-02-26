@@ -16,6 +16,7 @@ import small_square_microservice.small_square.application.dto.orderdishdto.Order
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
 import small_square_microservice.small_square.application.handler.orderhandler.IOrderHandler;
+import small_square_microservice.small_square.domain.util.Paginated;
 
 import java.util.List;
 
@@ -64,5 +65,29 @@ class OrderControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(orderResponse)));
 
         verify(orderHandler, times(1)).createOrder(any(OrderRequest.class));
+    }
+
+    @Test
+    void getOrdersByStatus_ShouldReturnOrders_WhenValidRequest() throws Exception {
+        String status = "PENDING";
+        int page = 0;
+        int size = 10;
+
+        List<OrderResponse> orderResponses = List.of(new OrderResponse());
+
+        Paginated<OrderResponse> paginatedOrders = new Paginated<>(orderResponses, page, size, 2L, 1);
+
+        when(orderHandler.getOrdersByStatus(status, page, size)).thenReturn(paginatedOrders);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/small_square/order/get_order_by_status")
+                        .param("status", status)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(paginatedOrders)));
+
+        verify(orderHandler, times(1)).getOrdersByStatus(status, page, size);
     }
 }

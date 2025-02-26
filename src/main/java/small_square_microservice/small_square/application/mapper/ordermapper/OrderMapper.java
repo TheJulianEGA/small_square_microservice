@@ -30,6 +30,8 @@ public class OrderMapper implements IOrderMapper {
     public OrderResponse toResponse(Order order) {
         return OrderResponse.builder()
                 .id(order.getId())
+                .chefId(order.getChefId())
+                .clientId(order.getClientId())
                 .date(order.getDate())
                 .status(order.getStatus())
                 .restaurantId(order.getRestaurant().getId())

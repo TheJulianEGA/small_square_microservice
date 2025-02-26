@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import small_square_microservice.small_square.application.dto.restaurantdto.RegisterEmployeeToRestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantRequest;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponse;
 import small_square_microservice.small_square.application.dto.restaurantdto.RestaurantResponseForPagination;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class RestaurantHandlerTest {
 
@@ -81,4 +83,28 @@ class RestaurantHandlerTest {
         verify(restaurantServicePort, times(1)).getAllRestaurants(page, size);
         verify(restaurantMapper, times(restaurantList.size())).toResponseForPagination(any(Restaurant.class));
     }
+
+    @Test
+    void updateRestaurantEmployees_ShouldReturnUpdatedRestaurantResponse_WhenValidRequest() {
+        Long restaurantId = 1L;
+        RegisterEmployeeToRestaurantRequest request = new RegisterEmployeeToRestaurantRequest();
+
+        Restaurant restaurant = new Restaurant();
+        Restaurant updatedRestaurant = new Restaurant();
+        RestaurantResponse expectedResponse = new RestaurantResponse();
+
+        when(restaurantMapper.employeeToRestaurantToModel(request)).thenReturn(restaurant);
+        when(restaurantServicePort.updateRestaurantEmployees(restaurantId, restaurant)).thenReturn(updatedRestaurant);
+        when(restaurantMapper.toResponse(updatedRestaurant)).thenReturn(expectedResponse);
+
+        RestaurantResponse actualResponse = restaurantHandler.updateRestaurantEmployees(restaurantId, request);
+
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+
+        verify(restaurantMapper, times(1)).employeeToRestaurantToModel(request);
+        verify(restaurantServicePort, times(1)).updateRestaurantEmployees(restaurantId, restaurant);
+        verify(restaurantMapper, times(1)).toResponse(updatedRestaurant);
+    }
+
 }

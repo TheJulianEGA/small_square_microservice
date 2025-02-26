@@ -12,6 +12,7 @@ import small_square_microservice.small_square.application.dto.orderdto.OrderResp
 import small_square_microservice.small_square.application.mapper.ordermapper.OrderMapper;
 import small_square_microservice.small_square.domain.api.IOrderServicePort;
 import small_square_microservice.small_square.domain.model.Order;
+import small_square_microservice.small_square.domain.util.Paginated;
 
 import java.util.List;
 
@@ -59,6 +60,37 @@ class OrderHandlerTest {
         assertEquals(orderResponse.getId(), result.getId());
         verify(orderMapper, times(1)).toModel(orderRequest);
         verify(orderServicePort, times(1)).createOrder(order);
+        verify(orderMapper, times(1)).toResponse(order);
+    }
+
+    @Test
+    void getOrdersByStatus_ShouldReturnPaginatedOrderResponses_WhenValidRequest() {
+        String status = "PENDING";
+        int page = 0;
+        int size = 10;
+
+        Paginated<Order> paginatedOrders = new Paginated<>(
+                List.of(order),
+                page,
+                size,
+                1L,
+                1
+        );
+
+        when(orderServicePort.getOrdersByStatus(status, page, size)).thenReturn(paginatedOrders);
+        when(orderMapper.toResponse(order)).thenReturn(orderResponse);
+
+        Paginated<OrderResponse> result = orderHandler.getOrdersByStatus(status, page, size);
+
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        assertEquals(orderResponse.getId(), result.getContent().get(0).getId());
+        assertEquals(paginatedOrders.getPageNumber(), result.getPageNumber());
+        assertEquals(paginatedOrders.getPageSize(), result.getPageSize());
+        assertEquals(paginatedOrders.getTotalElements(), result.getTotalElements());
+        assertEquals(paginatedOrders.getTotalPages(), result.getTotalPages());
+
+        verify(orderServicePort, times(1)).getOrdersByStatus(status, page, size);
         verify(orderMapper, times(1)).toResponse(order);
     }
 }

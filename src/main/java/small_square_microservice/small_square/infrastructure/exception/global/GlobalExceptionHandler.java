@@ -15,6 +15,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<String> unauthorizedException(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(EmployeeAlreadyInAnotherRestaurantException.class)
     public ResponseEntity<String> employeeAlreadyInAnotherRestaurantException(
             EmployeeAlreadyInAnotherRestaurantException ex) {
