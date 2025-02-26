@@ -60,23 +60,37 @@ class OrderJpaAdapterTest {
     @Test
     void hasPendingOrInProgressOrder_ShouldReturnTrue_WhenOrderExists() {
         Long clientId = 1L;
-        when(orderRepository.existsByClientIdAndStatusIn(eq(clientId), anyList())).thenReturn(true);
+        Long restaurantId = 2L;
+        when(orderRepository.existsByClientIdAndRestaurantIdAndStatusIn(
+                eq(clientId),
+                eq(restaurantId),
+                anyList())).thenReturn(true);
 
-        boolean result = orderJpaAdapter.hasPendingOrInProgressOrder(clientId);
+        boolean result = orderJpaAdapter.hasPendingOrInProgressOrder(clientId,restaurantId);
 
         assertTrue(result);
-        verify(orderRepository, times(1)).existsByClientIdAndStatusIn(eq(clientId), anyList());
+        verify(orderRepository, times(1)).existsByClientIdAndRestaurantIdAndStatusIn(
+                eq(clientId),
+                eq(restaurantId),
+                anyList());
     }
 
     @Test
     void hasPendingOrInProgressOrder_ShouldReturnFalse_WhenOrderDoesNotExist() {
         Long clientId = 1L;
-        when(orderRepository.existsByClientIdAndStatusIn(eq(clientId), anyList())).thenReturn(false);
+        Long restaurantId = 2L;
+        when(orderRepository.existsByClientIdAndRestaurantIdAndStatusIn(
+                eq(clientId),
+                eq(restaurantId),
+                anyList())).thenReturn(false);
 
-        boolean result = orderJpaAdapter.hasPendingOrInProgressOrder(clientId);
+        boolean result = orderJpaAdapter.hasPendingOrInProgressOrder(clientId,restaurantId);
 
         assertFalse(result);
-        verify(orderRepository, times(1)).existsByClientIdAndStatusIn(eq(clientId), anyList());
+        verify(orderRepository, times(1)).existsByClientIdAndRestaurantIdAndStatusIn(
+                eq(clientId),
+                eq(restaurantId),
+                anyList());
     }
 
     @Test
@@ -86,7 +100,7 @@ class OrderJpaAdapterTest {
         int page = 0;
         int size = 10;
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderPendingDate").ascending());
 
         List<OrderEntity> orderEntities = List.of(orderEntity);
         Page<OrderEntity> orderPage = new PageImpl<>(orderEntities, pageable, orderEntities.size());

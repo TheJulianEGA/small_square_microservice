@@ -32,7 +32,7 @@ public class OrderMapper implements IOrderMapper {
                 .id(order.getId())
                 .chefId(order.getChefId())
                 .clientId(order.getClientId())
-                .date(order.getDate())
+                .date(order.getOrderPendingDate())
                 .status(order.getStatus())
                 .restaurantId(order.getRestaurant().getId())
                 .orderDishes(order.getOrderDishes().stream()

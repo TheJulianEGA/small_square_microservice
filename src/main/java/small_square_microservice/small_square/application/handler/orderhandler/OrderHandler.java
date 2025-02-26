@@ -43,4 +43,12 @@ public class OrderHandler implements IOrderHandler {
                 paginatedOrders.getTotalPages()
         );
     }
+
+    @Override
+    public OrderResponse assignOrder(Long orderId) {
+
+        Order order = orderServicePort.assignOrder(orderId);
+
+        return orderMapper.toResponse(order);
+    }
 }

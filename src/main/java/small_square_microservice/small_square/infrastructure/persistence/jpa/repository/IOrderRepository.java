@@ -10,7 +10,10 @@ import java.util.List;
 
 @Repository
 public interface IOrderRepository extends JpaRepository<OrderEntity,Long> {
-    boolean existsByClientIdAndStatusIn(Long clientId, List<String> pendiente);
+
+    boolean existsByClientIdAndRestaurantIdAndStatusIn(Long clientId, Long restaurantId, List<String> statuses);
 
     Page<OrderEntity> findByRestaurantIdAndStatus(Long restaurantId, String status, Pageable pageable);
+
+    boolean existsByIdAndChefId(Long orderId, Long chefId);
 }

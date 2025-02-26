@@ -75,7 +75,7 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(false);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(false);
         when(dishPersistencePort.getDishById(orderDish.getDish().getId())).thenReturn(dish);
         when(orderPersistencePort.createOrder(any(Order.class))).thenReturn(order);
 
@@ -89,7 +89,7 @@ class OrderUseCaseTest {
         verify(restaurantPersistencePort, times(1))
                 .getRestaurantById(order.getRestaurant().getId());
         verify(dishPersistencePort, times(1)).getDishById(orderDish.getDish().getId());
-        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId);
+        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId,restaurant.getId());
     }
 
     @Test
@@ -105,9 +105,16 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(true);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(true);
 
         assertThrows(OrderInProgressException.class, () -> orderUseCase.createOrder(order));
+
+        verify(authenticationSecurityPort,times(1))
+                .getAuthenticatedUserId();
+        verify(restaurantPersistencePort,times(1))
+                .getRestaurantById(order.getRestaurant().getId());
+        verify(orderPersistencePort,times(1))
+                .hasPendingOrInProgressOrder(clientId, restaurant.getId());
     }
 
     @Test
@@ -116,7 +123,7 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(false);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(false);
         when(dishPersistencePort.getDishById(orderDish.getDish().getId())).thenReturn(null);
 
         assertThrows(DishNotFoundException.class, () -> orderUseCase.createOrder(order));
@@ -124,7 +131,8 @@ class OrderUseCaseTest {
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
         verify(restaurantPersistencePort, times(1))
                 .getRestaurantById(order.getRestaurant().getId());
-        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId);
+        verify(orderPersistencePort, times(1))
+                .hasPendingOrInProgressOrder(clientId,restaurant.getId());
     }
 
     @Test
@@ -134,7 +142,7 @@ class OrderUseCaseTest {
 
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
         when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
-        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId)).thenReturn(false);
+        when(orderPersistencePort.hasPendingOrInProgressOrder(clientId,restaurant.getId())).thenReturn(false);
         when(dishPersistencePort.getDishById(orderDish.getDish().getId())).thenReturn(dish);
 
         assertThrows(DishNotAvailableException.class, () -> orderUseCase.createOrder(order));
@@ -142,7 +150,8 @@ class OrderUseCaseTest {
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
         verify(restaurantPersistencePort, times(1))
                 .getRestaurantById(order.getRestaurant().getId());
-        verify(orderPersistencePort, times(1)).hasPendingOrInProgressOrder(clientId);
+        verify(orderPersistencePort, times(1))
+                .hasPendingOrInProgressOrder(clientId,restaurant.getId());
     }
 
     @Test

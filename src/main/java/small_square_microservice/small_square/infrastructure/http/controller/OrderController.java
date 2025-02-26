@@ -68,4 +68,24 @@ public class OrderController {
 
         return ResponseEntity.ok(orders);
     }
+
+    @Operation(
+            summary = "Assign an employee to an order",
+            description = "Allows a restaurant employee to assign themselves to an order and update its status."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order successfully assigned",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Access denied - only employees can assign orders",
+                    content = @Content(mediaType = "application/json"))
+    })
+    @PreAuthorize(InfrastructureConstants.ROLE_EMPLOYEE)
+    @PutMapping("/assign_employee/{orderId}")
+    public ResponseEntity<OrderResponse> assignOrder(@PathVariable Long orderId) {
+        OrderResponse orderResponse = orderHandler.assignOrder(orderId);
+        return ResponseEntity.ok(orderResponse);
+    }
 }

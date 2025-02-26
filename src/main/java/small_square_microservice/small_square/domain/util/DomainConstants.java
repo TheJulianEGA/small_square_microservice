@@ -23,6 +23,9 @@ public class DomainConstants {
         public static final String EMPLOYEE_ALREADY_IN_RESTAURANT = "Employee already in restaurant";
         public static final String EMPLOYEE_ALREADY_IN_ANOTHER_RESTAURANT = "Employee already in another restaurant";
         public static final String EMPLOYEE_NOT_ASSOCIATED_WITH_RESTAURANT = "Employee not associated with restaurant";
+        public static final String ORDER_ASSIGNED_TO_EMPLOYEE ="You already have this order assigned." ;
+        public static final String ORDER_ASSIGNED_TO_ANOTHER_EMPLOYEE = "The order has already been assigned to another employee";
+        public static final String ORDER_NOT_FOUND = "The order not found";
 
 
         private DomainConstants() {
