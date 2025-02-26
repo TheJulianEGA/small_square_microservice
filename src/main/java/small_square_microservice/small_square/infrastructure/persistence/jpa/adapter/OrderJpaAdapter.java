@@ -34,7 +34,7 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
 
     @Override
     public Paginated<Order> getOrdersByStatus(Long restaurantId, String status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
 
         Page<OrderEntity> orderPage = orderRepository.findByRestaurantIdAndStatus(restaurantId, status, pageable);
 

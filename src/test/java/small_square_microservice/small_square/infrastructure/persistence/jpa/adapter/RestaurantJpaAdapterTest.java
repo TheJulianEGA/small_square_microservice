@@ -13,8 +13,11 @@ import org.springframework.data.domain.Pageable;
 import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.util.Paginated;
+import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEmployeeEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEntity;
+import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.compositeprimarykey.RestaurantEmployeeKey;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.restaurantmapper.IRestaurantEntityMapper;
+import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IRestaurantEmployeeRepository;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IRestaurantRepository;
 import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
@@ -32,6 +35,9 @@ class RestaurantJpaAdapterTest {
 
     @Mock
     private IRestaurantEntityMapper restaurantEntityMapper;
+
+    @Mock
+    private IRestaurantEmployeeRepository restaurantEmployeeRepository;
 
     @InjectMocks
     private RestaurantJpaAdapter restaurantJpaAdapter;
@@ -172,4 +178,36 @@ class RestaurantJpaAdapterTest {
         assertNull(restaurantId);
         verify(restaurantRepository).findByEmployees_Id_EmployeeId(employeeId);
     }
+
+    @Test
+    void getRestaurantByEmployeeId_ShouldReturnRestaurantId_WhenEmployeeExists() {
+        Long employeeId = 200L;
+        Long expectedRestaurantId = 1L;
+        when(restaurantEmployeeRepository.findByIdEmployeeId(employeeId))
+                .thenReturn(Optional.of(
+                        RestaurantEmployeeEntity.builder()
+                                .id(new RestaurantEmployeeKey(expectedRestaurantId, employeeId))
+                                .restaurant(restaurantEntity)
+                                .build()
+                ));
+
+        Long restaurantId = restaurantJpaAdapter.getRestaurantByEmployeeId(employeeId);
+
+        assertNotNull(restaurantId);
+        assertEquals(expectedRestaurantId, restaurantId);
+        verify(restaurantEmployeeRepository).findByIdEmployeeId(employeeId);
+    }
+
+    @Test
+    void getRestaurantByEmployeeId_ShouldReturnNull_WhenEmployeeNotAssigned() {
+        Long employeeId = 200L;
+        when(restaurantEmployeeRepository.findByIdEmployeeId(employeeId))
+                .thenReturn(Optional.empty());
+
+        Long restaurantId = restaurantJpaAdapter.getRestaurantByEmployeeId(employeeId);
+
+        assertNull(restaurantId);
+        verify(restaurantEmployeeRepository).findByIdEmployeeId(employeeId);
+    }
 }
+

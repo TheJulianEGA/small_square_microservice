@@ -58,7 +58,4 @@ public class RestaurantHandler implements IRestaurantHandler {
         return restaurantMapper.toResponse(updateRestaurant);
     }
 
-
-
-
 }
