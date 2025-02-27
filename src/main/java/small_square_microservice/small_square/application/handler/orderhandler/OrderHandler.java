@@ -2,10 +2,13 @@ package small_square_microservice.small_square.application.handler.orderhandler;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import small_square_microservice.small_square.application.dto.messagedto.MessageResponse;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
-import small_square_microservice.small_square.application.mapper.ordermapper.OrderMapper;
+import small_square_microservice.small_square.application.mapper.messagemapper.IMessageMapper;
+import small_square_microservice.small_square.application.mapper.ordermapper.IOrderMapper;
 import small_square_microservice.small_square.domain.api.IOrderServicePort;
+import small_square_microservice.small_square.domain.model.MessageModel;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.util.Paginated;
 
@@ -16,7 +19,8 @@ import java.util.List;
 public class OrderHandler implements IOrderHandler {
 
     private final IOrderServicePort orderServicePort;
-    private final OrderMapper orderMapper;
+    private final IOrderMapper orderMapper;
+    private final IMessageMapper messageMapper;
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -50,5 +54,13 @@ public class OrderHandler implements IOrderHandler {
         Order order = orderServicePort.assignOrder(orderId);
 
         return orderMapper.toResponse(order);
+    }
+
+    @Override
+    public MessageResponse orderReady(Long orderId) {
+
+        MessageModel messageModel = orderServicePort.orderReady(orderId);
+
+        return messageMapper.toResponse(messageModel);
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import small_square_microservice.small_square.domain.exception.DishNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.DishNotFoundException;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
 import small_square_microservice.small_square.domain.util.Paginated;

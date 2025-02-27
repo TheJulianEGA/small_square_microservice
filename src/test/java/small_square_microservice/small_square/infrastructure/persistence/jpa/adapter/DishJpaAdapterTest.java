@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import small_square_microservice.small_square.domain.exception.DishNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.DishNotFoundException;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.DishEntity;

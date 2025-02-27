@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.*;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.model.RestaurantEmployee;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;

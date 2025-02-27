@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import small_square_microservice.small_square.application.dto.messagedto.MessageResponse;
 import small_square_microservice.small_square.application.dto.orderdishdto.OrderDishRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
@@ -37,6 +38,7 @@ class OrderControllerTest {
 
     private OrderRequest orderRequest;
     private OrderResponse orderResponse;
+    private MessageResponse messageResponse;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +47,7 @@ class OrderControllerTest {
 
         orderRequest = new OrderRequest();
         orderResponse = new OrderResponse();
+        messageResponse = new MessageResponse();
     }
 
     @Test
@@ -105,4 +108,20 @@ class OrderControllerTest {
 
         verify(orderHandler, times(1)).assignOrder(orderId);
     }
+
+    @Test
+    void orderReady_ShouldReturnOk_WhenOrderIsMarkedAsReadySuccessfully() throws Exception {
+        Long orderId = 1L;
+
+        when(orderHandler.orderReady(orderId)).thenReturn(messageResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/small_square/order/order_ready/{orderId}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(messageResponse)));
+
+        verify(orderHandler, times(1)).orderReady(orderId);
+    }
+
 }

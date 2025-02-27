@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
-import small_square_microservice.small_square.domain.exception.OrderNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.OrderNotFoundException;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.OrderEntity;

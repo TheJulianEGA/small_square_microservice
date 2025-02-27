@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.RestaurantEmployeeEntity;

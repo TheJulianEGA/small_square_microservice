@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import small_square_microservice.small_square.domain.exception.OrderNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.OrderNotFoundException;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
 import small_square_microservice.small_square.domain.util.Paginated;
