@@ -6,11 +6,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import small_square_microservice.small_square.application.dto.messagedto.MessageResponse;
 import small_square_microservice.small_square.application.dto.orderdishdto.OrderDishRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
+import small_square_microservice.small_square.application.mapper.messagemapper.MessageMapper;
 import small_square_microservice.small_square.application.mapper.ordermapper.OrderMapper;
 import small_square_microservice.small_square.domain.api.IOrderServicePort;
+import small_square_microservice.small_square.domain.model.MessageModel;
 import small_square_microservice.small_square.domain.model.Order;
 import small_square_microservice.small_square.domain.util.Paginated;
 
@@ -31,9 +34,15 @@ class OrderHandlerTest {
     @Mock
     private OrderMapper orderMapper;
 
+    @Mock
+    private MessageMapper messageMapper;
+
     private OrderRequest orderRequest;
     private OrderResponse orderResponse;
     private Order order;
+    private  MessageResponse messageResponse;
+    private MessageModel messageModel;
+
 
     @BeforeEach
     void setUp() {
@@ -46,6 +55,13 @@ class OrderHandlerTest {
 
         orderResponse = new OrderResponse();
         orderResponse.setId(1L);
+
+        messageResponse = new MessageResponse();
+        messageResponse.setMessage("hola");
+
+        messageModel = new MessageModel();
+        messageModel.setMessage("hola");
+
     }
 
     @Test
@@ -107,5 +123,20 @@ class OrderHandlerTest {
         assertEquals(orderResponse.getId(), result.getId());
         verify(orderServicePort, times(1)).assignOrder(orderId);
         verify(orderMapper, times(1)).toResponse(order);
+    }
+
+    @Test
+    void orderReady_ShouldReturnMessageResponse_WhenOrderIsMarkedAsReadySuccessfully() {
+        Long orderId = 1L;
+
+        when(orderServicePort.orderReady(orderId)).thenReturn(messageModel);
+        when(messageMapper.toResponse(messageModel)).thenReturn(messageResponse);
+
+        MessageResponse result = orderHandler.orderReady(orderId);
+
+        assertNotNull(result);
+        assertEquals(messageResponse.getMessage(), result.getMessage());
+        verify(orderServicePort, times(1)).orderReady(orderId);
+        verify(messageMapper, times(1)).toResponse(messageModel);
     }
 }

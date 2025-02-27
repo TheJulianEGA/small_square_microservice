@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import small_square_microservice.small_square.domain.exception.CategoryNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.CategoryNotFoundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.CategoryEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.categorymapper.ICategoryEntityMapper;

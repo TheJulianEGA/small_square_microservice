@@ -48,11 +48,13 @@ public class BeanConfiguration {
             IOrderPersistencePort orderPersistencePort,
             IRestaurantPersistencePort restaurantPersistencePort,
             IAuthenticationSecurityPort authenticationSecurityPort,
+            IMessageFeignPersistencePort messageFeignPersistencePort,
             IDishPersistencePort dishPersistencePort) {
         return new OrderUseCase(orderPersistencePort,
                 restaurantPersistencePort,
                 authenticationSecurityPort,
-                dishPersistencePort
+                dishPersistencePort,
+                messageFeignPersistencePort
         );
     }
 

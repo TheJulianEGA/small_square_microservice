@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.InvalidPaginationException;
-import small_square_microservice.small_square.domain.exception.RestaurantNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.exception.UserIsNotOwnerException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;

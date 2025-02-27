@@ -8,12 +8,21 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import small_square_microservice.small_square.domain.exception.*;
+import small_square_microservice.small_square.domain.exception.notfound.CategoryNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.DishNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.OrderNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(InvalidStatusException.class)
+    public ResponseEntity<String> invalidStatusException(InvalidStatusException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 
     @ExceptionHandler(OrderAlreadyAssignedException.class)
     public ResponseEntity<String> orderNotFoundException(OrderAlreadyAssignedException ex) {

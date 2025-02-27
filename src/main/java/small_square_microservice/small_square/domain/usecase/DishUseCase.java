@@ -2,6 +2,9 @@ package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IDishServicePort;
 import small_square_microservice.small_square.domain.exception.*;
+import small_square_microservice.small_square.domain.exception.notfound.CategoryNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.DishNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.model.Dish;
 import small_square_microservice.small_square.domain.model.Restaurant;
@@ -118,6 +121,5 @@ public class DishUseCase implements IDishServicePort {
         }
         return category;
     }
-
 
 }

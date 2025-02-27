@@ -2,6 +2,7 @@ package small_square_microservice.small_square.domain.usecase;
 
 import small_square_microservice.small_square.domain.api.IRestaurantServicePort;
 import small_square_microservice.small_square.domain.exception.*;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.Restaurant;
 import small_square_microservice.small_square.domain.model.RestaurantEmployee;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;

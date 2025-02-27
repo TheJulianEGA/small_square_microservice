@@ -7,12 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.domain.exception.*;
-import small_square_microservice.small_square.domain.model.Dish;
-import small_square_microservice.small_square.domain.model.Order;
-import small_square_microservice.small_square.domain.model.OrderDish;
-import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.exception.notfound.DishNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.OrderNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
+import small_square_microservice.small_square.domain.model.*;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
+import small_square_microservice.small_square.domain.spi.IMessageFeignPersistencePort;
 import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
@@ -41,6 +42,9 @@ class OrderUseCaseTest {
     @Mock
     private IDishPersistencePort dishPersistencePort;
 
+    @Mock
+    private IMessageFeignPersistencePort messageFeignPersistencePort;
+
     private Order order;
     private Restaurant restaurant;
     private OrderDish orderDish;
@@ -65,8 +69,12 @@ class OrderUseCaseTest {
         orderDish.setDish(dish);
         orderDish.setQuantity(2);
 
+        order.setId(1L);
+        order.setStatus(DomainConstants.STATUS_IN_PREPARATION);
+        order.setSecurityCode(1234567);
         order.setRestaurant(restaurant);
         order.setOrderDishes(List.of(orderDish));
+
     }
 
     @Test
@@ -325,5 +333,40 @@ class OrderUseCaseTest {
         verifyNoMoreInteractions(orderPersistencePort);
     }
 
+    @Test
+    void orderReady_Success() {
+        Long orderId = 1L;
+        Long employeeId = 10L;
+        Long restaurantId = 100L;
+        int securityCode = 1234567;
+
+        Restaurant restaurant1 = new Restaurant();
+        restaurant1.setId(restaurantId);
+
+        Order mockOrder = new Order();
+        mockOrder.setId(orderId);
+        mockOrder.setStatus(DomainConstants.STATUS_IN_PREPARATION);
+        mockOrder.setSecurityCode(securityCode);
+        mockOrder.setRestaurant(restaurant1);
+
+        MessageModel expectedMessageModel = new MessageModel();
+        expectedMessageModel.setMessage("hola");
+
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(employeeId);
+        when(restaurantPersistencePort.getRestaurantByEmployeeId(employeeId)).thenReturn(restaurantId);
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(mockOrder);
+
+        when(messageFeignPersistencePort.sendWhatsAppMessage(any(MessageModel.class)))
+                .thenReturn(expectedMessageModel);
+
+        MessageModel result = orderUseCase.orderReady(orderId);
+
+        assertEquals(DomainConstants.STATUS_READY, mockOrder.getStatus());
+        assertNotNull(mockOrder.getOrderReadyDate());
+        verify(orderPersistencePort,times(1)).updateOrder(mockOrder);
+        verify(messageFeignPersistencePort,(times(1)))
+                .sendWhatsAppMessage(any(MessageModel.class));
+        assertEquals(expectedMessageModel.getMessage(), result.getMessage());
+    }
 
 }

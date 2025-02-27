@@ -10,6 +10,7 @@ import small_square_microservice.small_square.infrastructure.util.Infrastructure
 import java.util.Objects;
 
 public class JwtRequestInterceptor implements RequestInterceptor {
+
     @Override
     public void apply(RequestTemplate requestTemplate) {
 

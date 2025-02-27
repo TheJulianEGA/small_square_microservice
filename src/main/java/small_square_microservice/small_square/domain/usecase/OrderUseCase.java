@@ -1,13 +1,15 @@
 package small_square_microservice.small_square.domain.usecase;
 
+import lombok.RequiredArgsConstructor;
 import small_square_microservice.small_square.domain.api.IOrderServicePort;
 import small_square_microservice.small_square.domain.exception.*;
-import small_square_microservice.small_square.domain.model.Dish;
-import small_square_microservice.small_square.domain.model.Order;
-import small_square_microservice.small_square.domain.model.OrderDish;
-import small_square_microservice.small_square.domain.model.Restaurant;
+import small_square_microservice.small_square.domain.exception.notfound.DishNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.OrderNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
+import small_square_microservice.small_square.domain.model.*;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
 import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
+import small_square_microservice.small_square.domain.spi.IMessageFeignPersistencePort;
 import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
 import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
 import small_square_microservice.small_square.domain.util.DomainConstants;
@@ -16,29 +18,22 @@ import small_square_microservice.small_square.domain.util.Paginated;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
-
+@RequiredArgsConstructor
 public class OrderUseCase implements IOrderServicePort {
 
     private final IOrderPersistencePort orderPersistencePort;
     private final IRestaurantPersistencePort restaurantPersistencePort;
     private final IAuthenticationSecurityPort authenticationSecurityPort;
     private final IDishPersistencePort dishPersistencePort;
+    private final IMessageFeignPersistencePort messageFeignPersistencePort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort,
-                        IRestaurantPersistencePort restaurantPersistencePort,
-                        IAuthenticationSecurityPort authenticationSecurityPort,
-                        IDishPersistencePort dishPersistencePort) {
-        this.orderPersistencePort = orderPersistencePort;
-        this.restaurantPersistencePort = restaurantPersistencePort;
-        this.authenticationSecurityPort = authenticationSecurityPort;
-        this.dishPersistencePort = dishPersistencePort;
-    }
+    private static final Random RANDOM = new Random();
 
     @Override
     public Order createOrder(Order order) {
         Long clientId = authenticationSecurityPort.getAuthenticatedUserId();
-
 
         Restaurant restaurant = validateRestaurant(order.getRestaurant().getId());
         validateNoPendingOrder(clientId,restaurant.getId());
@@ -47,6 +42,9 @@ public class OrderUseCase implements IOrderServicePort {
         order.setClientId(clientId);
         order.setStatus(DomainConstants.STATUS_PENDING);
         order.setOrderPendingDate(LocalDateTime.now());
+
+        int securityCode = generateSecurityCode();
+        order.setSecurityCode(securityCode);
 
         return orderPersistencePort.createOrder(order);
     }
@@ -80,8 +78,45 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setChefId(employeeId);
         order.setOrderPreparationDate(LocalDateTime.now());
+        order.setStatus(DomainConstants.STATUS_IN_PREPARATION);
 
         return orderPersistencePort.updateOrder(order);
+    }
+
+    @Override
+    public MessageModel orderReady(Long orderId) {
+        Long employeeId = authenticationSecurityPort.getAuthenticatedUserId();
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        validateOrderBelongsToEmployeeRestaurant(order, employeeId);
+        validateOrderStatus(order);
+
+        order.setStatus(DomainConstants.STATUS_READY);
+        order.setOrderReadyDate(LocalDateTime.now());
+
+        orderPersistencePort.updateOrder(order);
+
+        String message = generateOrderMessage(orderId, order.getSecurityCode());
+
+        MessageModel messageModel = new MessageModel();
+        messageModel.setMessage(message);
+
+        return messageFeignPersistencePort.sendWhatsAppMessage(messageModel);
+    }
+
+    private int generateSecurityCode() {
+        return RANDOM.nextInt(10000000);
+    }
+
+    private String generateOrderMessage(Long orderId, int securityCode) {
+        String claimCode = String.format("%07d", securityCode);
+        return String.format(DomainConstants.ORDER_READY_MESSAGE_TEMPLATE, orderId, claimCode);
+    }
+
+    private void validateOrderStatus(Order order) {
+        if (!DomainConstants.STATUS_IN_PREPARATION.equals(order.getStatus())) {
+            throw new InvalidStatusException(DomainConstants.STATUS_IS_NOT_PREPARED);
+        }
     }
 
     private void validateOrderBelongsToEmployeeRestaurant(Order order, Long employeeId) {

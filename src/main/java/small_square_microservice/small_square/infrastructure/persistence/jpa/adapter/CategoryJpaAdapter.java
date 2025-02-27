@@ -2,7 +2,7 @@ package small_square_microservice.small_square.infrastructure.persistence.jpa.ad
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import small_square_microservice.small_square.domain.exception.CategoryNotFoundException;
+import small_square_microservice.small_square.domain.exception.notfound.CategoryNotFoundException;
 import small_square_microservice.small_square.domain.model.Category;
 import small_square_microservice.small_square.domain.spi.ICategoryPersistencePort;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.categorymapper.ICategoryEntityMapper;

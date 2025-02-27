@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import small_square_microservice.small_square.application.dto.messagedto.MessageResponse;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
 import small_square_microservice.small_square.application.handler.orderhandler.IOrderHandler;
@@ -87,5 +88,12 @@ public class OrderController {
     public ResponseEntity<OrderResponse> assignOrder(@PathVariable Long orderId) {
         OrderResponse orderResponse = orderHandler.assignOrder(orderId);
         return ResponseEntity.ok(orderResponse);
+    }
+
+    @PreAuthorize(InfrastructureConstants.ROLE_EMPLOYEE)
+    @PutMapping("/order_ready/{orderId}")
+    public ResponseEntity<MessageResponse> orderReady(@PathVariable Long orderId) {
+        MessageResponse messageResponse = orderHandler.orderReady(orderId);
+        return ResponseEntity.ok(messageResponse);
     }
 }

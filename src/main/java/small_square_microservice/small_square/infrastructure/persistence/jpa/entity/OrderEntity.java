@@ -39,6 +39,9 @@ public class OrderEntity {
     @Column(name = "status", nullable = false)
     private String status;
 
+    @Column(name = "security_code", nullable = true)
+    private Integer securityCode;
+
     @Column(name = "chef_id")
     private Long chefId;
 
