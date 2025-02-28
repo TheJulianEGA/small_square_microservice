@@ -2,6 +2,7 @@ package small_square_microservice.small_square.application.mapper.ordermapper;
 
 import org.springframework.stereotype.Component;
 import small_square_microservice.small_square.application.dto.orderdishdto.OrderDishResponse;
+import small_square_microservice.small_square.application.dto.orderdishdto.SecurityCodeRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
 import small_square_microservice.small_square.domain.model.Dish;
@@ -41,6 +42,13 @@ public class OrderMapper implements IOrderMapper {
                                 .quantity(dish.getQuantity())
                                 .build())
                         .toList())
+                .build();
+    }
+
+    @Override
+    public Order securityCodeToModel(SecurityCodeRequest request){
+        return Order.builder()
+                .securityCode(request.getSecurityCode())
                 .build();
     }
 }

@@ -369,4 +369,26 @@ class OrderUseCaseTest {
         assertEquals(expectedMessageModel.getMessage(), result.getMessage());
     }
 
+    @Test
+    void orderDelivery_ShouldUpdateOrder_WhenSecurityCodeIsValidAndOrderIsReady() {
+        Long orderId = 1L;
+        Integer securityCode = 1234567;
+
+        Order mockOrder = new Order();
+        mockOrder.setId(orderId);
+        mockOrder.setStatus(DomainConstants.STATUS_READY);
+        mockOrder.setSecurityCode(securityCode);
+
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(mockOrder);
+        when(orderPersistencePort.updateOrder(any(Order.class))).thenReturn(mockOrder);
+
+        Order result = orderUseCase.orderDelivery(orderId, securityCode);
+
+        assertEquals(DomainConstants.STATUS_DELIVERY, result.getStatus());
+        assertNotNull(result.getOrderDeliveredDate());
+
+        verify(orderPersistencePort, times(1)).getOrderById(orderId);
+        verify(orderPersistencePort, times(1)).updateOrder(any(Order.class));
+    }
+
 }

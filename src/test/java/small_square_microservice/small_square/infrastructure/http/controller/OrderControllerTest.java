@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import small_square_microservice.small_square.application.dto.messagedto.MessageResponse;
 import small_square_microservice.small_square.application.dto.orderdishdto.OrderDishRequest;
+import small_square_microservice.small_square.application.dto.orderdishdto.SecurityCodeRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
 import small_square_microservice.small_square.application.handler.orderhandler.IOrderHandler;
@@ -122,6 +123,23 @@ class OrderControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(messageResponse)));
 
         verify(orderHandler, times(1)).orderReady(orderId);
+    }
+
+    @Test
+    void orderDelivery_ShouldReturnOk_WhenOrderIsMarkedAsDeliveredSuccessfully() throws Exception {
+        Long orderId = 1L;
+        SecurityCodeRequest securityCodeRequest = new SecurityCodeRequest(1234567);
+
+        when(orderHandler.orderDelivery(eq(orderId), any(SecurityCodeRequest.class))).thenReturn(orderResponse);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/small_square/order/order_delivery/{orderId}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(securityCodeRequest)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(orderResponse)));
+
+        verify(orderHandler, times(1)).orderDelivery(eq(orderId), any(SecurityCodeRequest.class));
     }
 
 }
