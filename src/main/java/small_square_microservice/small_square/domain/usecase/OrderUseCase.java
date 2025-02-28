@@ -60,7 +60,7 @@ public class OrderUseCase implements IOrderServicePort {
             throw new UnauthorizedException(DomainConstants.EMPLOYEE_NOT_ASSOCIATED_WITH_RESTAURANT);
         }
 
-        if (page < 0 || size < 1) {
+        if (page < DomainConstants.MIN_NUMBER_PAGE || size < DomainConstants.MIN_NUMBER_SIZE) {
             throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
         }
 

@@ -13,6 +13,7 @@ import small_square_microservice.small_square.domain.util.Paginated;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.entity.OrderEntity;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.mapper.ordermapper.IOrderEntityMapper;
 import small_square_microservice.small_square.infrastructure.persistence.jpa.repository.IOrderRepository;
+import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
 import java.util.List;
 import java.util.Optional;
@@ -184,6 +185,48 @@ class OrderJpaAdapterTest {
         verify(orderRepository, times(1)).save(orderEntity);
         verify(orderMapper, times(1)).toEntity(order);
         verify(orderMapper, times(1)).toModel(orderEntity);
+    }
+
+    @Test
+    void isAnOrderInProcessPending_ShouldReturnTrue_WhenOrderExists() {
+        Long clientId = 1L;
+        Long restaurantId = 2L;
+
+        when(orderRepository.existsByClientIdAndRestaurantIdAndStatus(
+                clientId,
+                restaurantId,
+                InfrastructureConstants.STATUS_PENDING
+        )).thenReturn(true);
+
+        boolean result = orderJpaAdapter.isAnOrderInProcessPending(clientId, restaurantId);
+
+        assertTrue(result);
+        verify(orderRepository, times(1)).existsByClientIdAndRestaurantIdAndStatus(
+                clientId,
+                restaurantId,
+                InfrastructureConstants.STATUS_PENDING
+        );
+    }
+
+    @Test
+    void isAnOrderInProcessPending_ShouldReturnFalse_WhenOrderDoesNotExist() {
+        Long clientId = 1L;
+        Long restaurantId = 2L;
+
+        when(orderRepository.existsByClientIdAndRestaurantIdAndStatus(
+                clientId,
+                restaurantId,
+                InfrastructureConstants.STATUS_PENDING
+        )).thenReturn(false);
+
+        boolean result = orderJpaAdapter.isAnOrderInProcessPending(clientId, restaurantId);
+
+        assertFalse(result);
+        verify(orderRepository, times(1)).existsByClientIdAndRestaurantIdAndStatus(
+                clientId,
+                restaurantId,
+                InfrastructureConstants.STATUS_PENDING
+        );
     }
 }
 

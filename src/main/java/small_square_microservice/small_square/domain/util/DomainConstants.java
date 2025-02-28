@@ -39,6 +39,9 @@ public class DomainConstants {
         public static final String ORDER_CANNOT_BE_MESSAGE_CANCELLED_TEMPLATE =
                 "Order #%d%n We are sorry, your order is already in preparation and cannot be cancelled.";
 
+        public static final int MIN_NUMBER_PAGE = 0;
+        public static final int MIN_NUMBER_SIZE = 1;
+
         private DomainConstants() {
         }
 }

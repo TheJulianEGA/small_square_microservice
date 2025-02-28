@@ -38,7 +38,7 @@ public class RestaurantUseCase implements IRestaurantServicePort {
 
     @Override
     public Paginated<Restaurant> getAllRestaurants(int page, int size) {
-        if ( page < 0 || size < 1) {
+        if ( page < DomainConstants.MIN_NUMBER_PAGE || size < DomainConstants.MIN_NUMBER_SIZE) {
             throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
         }
         return restaurantPersistencePort.getAllRestaurants(page, size);

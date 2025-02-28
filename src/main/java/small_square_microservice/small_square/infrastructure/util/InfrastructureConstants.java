@@ -23,6 +23,8 @@ public class InfrastructureConstants {
     public static final String ROLE_EMPLOYEE = "hasRole('EMPLOYEE')";
     public static final String STATUS_DELIVERY = "delivery";
     public static final String ORDER_NOT_FOUND = "The order not found";
+    public static final String ERROR_CONVERTING_USER_ID = "Error converting user ID.";
+
 
 
     private InfrastructureConstants() {

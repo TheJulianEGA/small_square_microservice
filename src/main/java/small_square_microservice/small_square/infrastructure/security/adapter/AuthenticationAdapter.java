@@ -29,7 +29,7 @@ public class AuthenticationAdapter implements IAuthenticationSecurityPort {
         try {
             return Long.valueOf(userId);
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("Error al convertir el ID de usuario: " + userId);
+            throw new NumberFormatException(InfrastructureConstants.ERROR_CONVERTING_USER_ID);
         }
     }
 }
