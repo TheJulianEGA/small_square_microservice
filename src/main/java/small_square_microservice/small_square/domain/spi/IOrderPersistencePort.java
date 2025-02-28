@@ -16,4 +16,6 @@ public interface IOrderPersistencePort {
     boolean isOrderAssignedToEmployee(Long orderId, Long employeeId);
 
     Order updateOrder(Order order);
+
+    boolean isAnOrderInProcessPending(Long clientId, Long id);
 }

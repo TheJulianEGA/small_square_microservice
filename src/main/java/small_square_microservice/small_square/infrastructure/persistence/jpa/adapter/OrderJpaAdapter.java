@@ -59,9 +59,17 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
                 clientId,
                 restaurantId,
                 List.of(InfrastructureConstants.STATUS_PENDING,
-                        InfrastructureConstants.STATUS_IN_PREPARATION,
-                        InfrastructureConstants.STATUS_READY,
-                        InfrastructureConstants.STATUS_DELIVERY));
+                        InfrastructureConstants.STATUS_IN_PREPARATION));
+    }
+
+    @Override
+    public boolean isAnOrderInProcessPending(Long clientId, Long restaurantId) {
+        return orderRepository.existsByClientIdAndRestaurantIdAndStatus(
+                clientId,
+                restaurantId,
+                InfrastructureConstants.STATUS_PENDING
+                );
+
     }
 
     @Override
@@ -82,4 +90,6 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
         OrderEntity orderEntity = orderRepository.save(orderMapper.toEntity(order));
         return orderMapper.toModel(orderEntity);
     }
+
+
 }
