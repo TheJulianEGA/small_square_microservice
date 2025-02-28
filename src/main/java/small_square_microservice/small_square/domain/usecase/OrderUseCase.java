@@ -89,7 +89,7 @@ public class OrderUseCase implements IOrderServicePort {
         Order order = orderPersistencePort.getOrderById(orderId);
 
         validateOrderBelongsToEmployeeRestaurant(order, employeeId);
-        validateOrderStatus(order);
+        validateOrderStatusInPreparation(order);
 
         order.setStatus(DomainConstants.STATUS_READY);
         order.setOrderReadyDate(LocalDateTime.now());
@@ -104,6 +104,26 @@ public class OrderUseCase implements IOrderServicePort {
         return messageFeignPersistencePort.sendWhatsAppMessage(messageModel);
     }
 
+    @Override
+    public Order orderDelivery(Long orderId, Integer securityCode) {
+
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        validateOrderStatusReady(order);
+
+        validateSecurityCode(order,securityCode);
+
+        order.setOrderDeliveredDate(LocalDateTime.now());
+        order.setStatus(DomainConstants.STATUS_DELIVERY);
+        return orderPersistencePort.updateOrder(order);
+    }
+
+    private void validateSecurityCode(Order order, Integer securityCode) {
+        if (!order.getSecurityCode().equals(securityCode)) {
+            throw new InvalidSecurityCodeException(DomainConstants.INVALID_SECURITY_CODE);
+        }
+    }
+
     private int generateSecurityCode() {
         return RANDOM.nextInt(10000000);
     }
@@ -113,9 +133,16 @@ public class OrderUseCase implements IOrderServicePort {
         return String.format(DomainConstants.ORDER_READY_MESSAGE_TEMPLATE, orderId, claimCode);
     }
 
-    private void validateOrderStatus(Order order) {
+    private void validateOrderStatusInPreparation(Order order) {
         if (!DomainConstants.STATUS_IN_PREPARATION.equals(order.getStatus())) {
             throw new InvalidStatusException(DomainConstants.STATUS_IS_NOT_PREPARED);
+        }
+
+    }
+
+    private void validateOrderStatusReady(Order order) {
+        if (!DomainConstants.STATUS_READY.equals(order.getStatus())) {
+            throw new InvalidStatusException(DomainConstants.STATUS_IS_NOT_READY);
         }
     }
 

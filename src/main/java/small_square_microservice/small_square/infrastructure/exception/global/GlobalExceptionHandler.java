@@ -19,6 +19,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(InvalidSecurityCodeException.class)
+    public ResponseEntity<String> invalidSecurityCodeException(InvalidSecurityCodeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(InvalidStatusException.class)
     public ResponseEntity<String> invalidStatusException(InvalidStatusException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());

@@ -13,4 +13,6 @@ public interface IOrderServicePort {
     Order assignOrder(Long orderId);
 
     MessageModel orderReady(Long orderId);
+
+    Order orderDelivery(Long orderId, Integer securityCode);
 }

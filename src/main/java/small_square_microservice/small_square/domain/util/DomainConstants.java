@@ -24,13 +24,17 @@ public class DomainConstants {
         public static final String EMPLOYEE_ALREADY_IN_ANOTHER_RESTAURANT = "Employee already in another restaurant";
         public static final String EMPLOYEE_NOT_ASSOCIATED_WITH_RESTAURANT = "Employee not associated with restaurant";
         public static final String ORDER_ASSIGNED_TO_EMPLOYEE ="You already have this order assigned." ;
-        public static final String ORDER_ASSIGNED_TO_ANOTHER_EMPLOYEE = "The order has already been assigned to another employee";
+        public static final String ORDER_ASSIGNED_TO_ANOTHER_EMPLOYEE = "The order has already been assigned " +
+                "to another employee";
         public static final String ORDER_NOT_FOUND = "The order not found";
         public static final String STATUS_READY = "ready";
         public static final String STATUS_IN_PREPARATION = "in preparation";
         public static final String STATUS_IS_NOT_PREPARED = "The order is not being prepared.";
         public static final String ORDER_READY_MESSAGE_TEMPLATE =
                 "Order #%d%nYour order is ready, you can pick it up.%nClaim with the following code: %s";
+        public static final String STATUS_DELIVERY = "delivery";
+        public static final String STATUS_IS_NOT_READY = "The order is not being ready";
+        public static final String INVALID_SECURITY_CODE = "Invalid security code";
 
         private DomainConstants() {
         }

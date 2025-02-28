@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import small_square_microservice.small_square.application.dto.messagedto.MessageResponse;
 import small_square_microservice.small_square.application.dto.orderdishdto.OrderDishRequest;
+import small_square_microservice.small_square.application.dto.orderdishdto.SecurityCodeRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderRequest;
 import small_square_microservice.small_square.application.dto.orderdto.OrderResponse;
 import small_square_microservice.small_square.application.mapper.messagemapper.MessageMapper;
@@ -139,4 +140,21 @@ class OrderHandlerTest {
         verify(orderServicePort, times(1)).orderReady(orderId);
         verify(messageMapper, times(1)).toResponse(messageModel);
     }
+    @Test
+    void orderDelivery_ShouldReturnOrderResponse_WhenSecurityCodeSuccessfully() {
+        Long orderId = 1L;
+        SecurityCodeRequest securityCodeRequest = new SecurityCodeRequest(1234567);
+
+        when(orderServicePort.orderDelivery(orderId, securityCodeRequest.getSecurityCode())).thenReturn(order);
+        when(orderMapper.toResponse(order)).thenReturn(orderResponse);
+
+        OrderResponse result = orderHandler.orderDelivery(orderId, securityCodeRequest);
+
+        assertNotNull(result);
+        assertEquals(orderResponse.getId(), result.getId());
+
+        verify(orderServicePort, times(1)).orderDelivery(orderId, securityCodeRequest.getSecurityCode());
+        verify(orderMapper, times(1)).toResponse(order);
+    }
+
 }

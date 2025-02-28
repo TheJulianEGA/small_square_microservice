@@ -22,6 +22,7 @@ public class ApplicationConstants {
     public static final String DISH_NOT_NULL = "The restaurant cannot be null";
     public static final String EMPLOYEE_NOT_EMPTY = "The dish list cannot be empty";
     public static final String ORDER_DISHES_NOT_EMPTY = "The dish list cannot be empty";
+    public static final String SECURITY_CODE_NOT_NULL = "You must enter the security code";
 
     private ApplicationConstants() {}
 }
