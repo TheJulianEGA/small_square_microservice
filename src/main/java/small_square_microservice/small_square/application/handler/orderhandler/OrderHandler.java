@@ -72,4 +72,11 @@ public class OrderHandler implements IOrderHandler {
 
         return orderMapper.toResponse(update);
     }
+
+    @Override
+    public MessageResponse cancelOrder(Long orderId) {
+        MessageModel messageModel = orderServicePort.cancelOrder(orderId);
+
+        return messageMapper.toResponse(messageModel);
+    }
 }

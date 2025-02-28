@@ -60,7 +60,7 @@ public class OrderUseCase implements IOrderServicePort {
             throw new UnauthorizedException(DomainConstants.EMPLOYEE_NOT_ASSOCIATED_WITH_RESTAURANT);
         }
 
-        if (page < 0 || size < 1) {
+        if (page < DomainConstants.MIN_NUMBER_PAGE || size < DomainConstants.MIN_NUMBER_SIZE) {
             throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
         }
 
@@ -96,7 +96,7 @@ public class OrderUseCase implements IOrderServicePort {
 
         orderPersistencePort.updateOrder(order);
 
-        String message = generateOrderMessage(orderId, order.getSecurityCode());
+        String message = generateOrderReadyMessage(orderId, order.getSecurityCode());
 
         MessageModel messageModel = new MessageModel();
         messageModel.setMessage(message);
@@ -118,6 +118,32 @@ public class OrderUseCase implements IOrderServicePort {
         return orderPersistencePort.updateOrder(order);
     }
 
+    @Override
+    public MessageModel cancelOrder(Long orderId) {
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        Long clientId = authenticationSecurityPort.getAuthenticatedUserId();
+        Restaurant restaurant = validateRestaurant(order.getRestaurant().getId());
+
+        validateOrderInProgress(clientId,restaurant.getId());
+
+        order.setStatus(DomainConstants.STATUS_CANCELED);
+        orderPersistencePort.updateOrder(order);
+
+        String message = generateOrderMessageCannotBeCancelled(orderId);
+
+        MessageModel messageModel = new MessageModel();
+        messageModel.setMessage(message);
+
+        return messageFeignPersistencePort.sendWhatsAppMessage(messageModel);
+    }
+
+    private void validateOrderInProgress(Long clientId, Long restaurantId) {
+        if (!orderPersistencePort.isAnOrderInProcessPending(clientId, restaurantId)) {
+            throw new OrderInProgressException(DomainConstants.ORDER_IN_PROGRESS);
+        }
+    }
+
     private void validateSecurityCode(Order order, Integer securityCode) {
         if (!order.getSecurityCode().equals(securityCode)) {
             throw new InvalidSecurityCodeException(DomainConstants.INVALID_SECURITY_CODE);
@@ -128,9 +154,13 @@ public class OrderUseCase implements IOrderServicePort {
         return RANDOM.nextInt(10000000);
     }
 
-    private String generateOrderMessage(Long orderId, int securityCode) {
+    private String generateOrderReadyMessage(Long orderId, int securityCode) {
         String claimCode = String.format("%07d", securityCode);
         return String.format(DomainConstants.ORDER_READY_MESSAGE_TEMPLATE, orderId, claimCode);
+    }
+
+    private String generateOrderMessageCannotBeCancelled(Long orderId) {
+        return String.format(DomainConstants.ORDER_CANNOT_BE_MESSAGE_CANCELLED_TEMPLATE, orderId);
     }
 
     private void validateOrderStatusInPreparation(Order order) {

@@ -111,11 +111,44 @@ public class OrderController {
         return ResponseEntity.ok(messageResponse);
     }
 
+    @Operation(
+            summary = "Mark an order as 'Delivery'",
+            description = "Allows a restaurant employee to mark an order as 'Delivery' after validating the security code."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order successfully marked as 'Delivery'",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Access denied - only employees can mark orders as 'Delivery'",
+                    content = @Content(mediaType = "application/json")),
+    })
     @PreAuthorize(InfrastructureConstants.ROLE_EMPLOYEE)
     @PutMapping("/order_delivery/{orderId}")
     public ResponseEntity<OrderResponse> orderDelivery(@PathVariable Long orderId,
                                                        @RequestBody @Valid SecurityCodeRequest securityCodeRequest) {
         OrderResponse orderResponse = orderHandler.orderDelivery(orderId,securityCodeRequest);
         return ResponseEntity.ok(orderResponse);
+    }
+
+    @Operation(
+            summary = "Cancel an order",
+            description = "Allows a restaurant customer to cancel their order if it is still pending."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order successfully cancelled",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Access denied - only customers can cancel orders",
+                    content = @Content(mediaType = "application/json")),
+    })
+    @PreAuthorize(InfrastructureConstants.ROLE_CUSTOMER)
+    @PutMapping("/cancel_order/{orderId}")
+    public ResponseEntity<MessageResponse> cancelOrder(@PathVariable Long orderId) {
+        MessageResponse messageResponse = orderHandler.cancelOrder(orderId);
+        return ResponseEntity.ok(messageResponse);
     }
 }

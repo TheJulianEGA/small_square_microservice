@@ -391,4 +391,36 @@ class OrderUseCaseTest {
         verify(orderPersistencePort, times(1)).updateOrder(any(Order.class));
     }
 
+    @Test
+    void cancelOrder_Success() {
+        Long orderId = 1L;
+        Long clientId = 10L;
+        Long restaurantId = 100L;
+
+        Restaurant mockRestaurant = new Restaurant();
+        mockRestaurant.setId(restaurantId);
+
+        Order mockOrder = new Order();
+        mockOrder.setId(orderId);
+        mockOrder.setStatus(DomainConstants.STATUS_PENDING);
+        mockOrder.setRestaurant(mockRestaurant);
+
+        MessageModel expectedMessage = new MessageModel();
+        expectedMessage.setMessage("hola");
+
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(mockOrder);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
+        when(restaurantPersistencePort.getRestaurantById(restaurantId)).thenReturn(mockRestaurant);
+        when(orderPersistencePort.isAnOrderInProcessPending(clientId, restaurantId)).thenReturn(true);
+        when(messageFeignPersistencePort.sendWhatsAppMessage(any(MessageModel.class)))
+                .thenReturn(expectedMessage);
+
+        MessageModel result = orderUseCase.cancelOrder(orderId);
+
+        assertEquals(DomainConstants.STATUS_CANCELED, mockOrder.getStatus());
+        verify(orderPersistencePort, times(1)).updateOrder(mockOrder);
+        verify(messageFeignPersistencePort, times(1)).sendWhatsAppMessage(any(MessageModel.class));
+        assertEquals(expectedMessage.getMessage(), result.getMessage());
+    }
+
 }

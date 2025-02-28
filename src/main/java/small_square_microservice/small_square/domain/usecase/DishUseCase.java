@@ -81,7 +81,7 @@ public class DishUseCase implements IDishServicePort {
             throw new RestaurantNotFoundException(DomainConstants.RESTAURANT_NOT_FOUND);
         }
 
-        if ( page < 0 || size < 1) {
+        if (page < DomainConstants.MIN_NUMBER_PAGE || size < DomainConstants.MIN_NUMBER_SIZE) {
             throw new InvalidPaginationException(DomainConstants.INVALID_PAGINATION_MESSAGE);
         }
         return dishPersistencePort.getDishesByRestaurant(restaurantId, page, size, categoryId);

@@ -31,10 +31,16 @@ public class DomainConstants {
         public static final String STATUS_IN_PREPARATION = "in preparation";
         public static final String STATUS_IS_NOT_PREPARED = "The order is not being prepared.";
         public static final String ORDER_READY_MESSAGE_TEMPLATE =
-                "Order #%d%nYour order is ready, you can pick it up.%nClaim with the following code: %s";
+                "Order #%d%n Your order is ready, you can pick it up.%nClaim with the following code: %s";
         public static final String STATUS_DELIVERY = "delivery";
         public static final String STATUS_IS_NOT_READY = "The order is not being ready";
         public static final String INVALID_SECURITY_CODE = "Invalid security code";
+        public static final String STATUS_CANCELED = "canceled";
+        public static final String ORDER_CANNOT_BE_MESSAGE_CANCELLED_TEMPLATE =
+                "Order #%d%n We are sorry, your order is already in preparation and cannot be cancelled.";
+
+        public static final int MIN_NUMBER_PAGE = 0;
+        public static final int MIN_NUMBER_SIZE = 1;
 
         private DomainConstants() {
         }
