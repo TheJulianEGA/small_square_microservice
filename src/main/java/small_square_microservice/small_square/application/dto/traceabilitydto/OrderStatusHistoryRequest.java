@@ -19,6 +19,8 @@ public class OrderStatusHistoryRequest {
 
     private Long restaurantId;
 
+    private Long ownerId;
+
     private Long employeeId;
 
     private String employeeMail;

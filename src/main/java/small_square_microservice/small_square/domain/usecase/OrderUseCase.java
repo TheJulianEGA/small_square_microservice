@@ -37,6 +37,7 @@ public class OrderUseCase implements IOrderServicePort {
         validateNoPendingOrder(clientId,restaurant.getId());
         validateOrderDishes(order.getOrderDishes(), restaurant);
 
+
         order.setClientId(clientId);
         order.setDate(LocalDateTime.now());
 
@@ -49,8 +50,10 @@ public class OrderUseCase implements IOrderServicePort {
         orderStatusHistory.setPreviousState(order.getStatus());
 
         order.setStatus(DomainConstants.STATUS_PENDING);
+        order.getRestaurant().getOwnerId();
 
         Order save = orderPersistencePort.createOrder(order);
+        save.setRestaurant(restaurant);
         orderStatusHistoryFeignPersistencePort.saveOrderStatusHistory(save,orderStatusHistory );
 
         return save;
@@ -157,6 +160,7 @@ public class OrderUseCase implements IOrderServicePort {
 
         Long clientId = authenticationSecurityPort.getAuthenticatedUserId();
         Restaurant restaurant = validateRestaurant(order.getRestaurant().getId());
+
 
         validateOrderInProgress(clientId,restaurant.getId());
 
