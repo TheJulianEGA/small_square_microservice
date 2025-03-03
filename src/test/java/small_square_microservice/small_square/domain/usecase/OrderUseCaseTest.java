@@ -12,10 +12,7 @@ import small_square_microservice.small_square.domain.exception.notfound.OrderNot
 import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.*;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
-import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
-import small_square_microservice.small_square.domain.spi.IMessageFeignPersistencePort;
-import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
-import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
+import small_square_microservice.small_square.domain.spi.*;
 import small_square_microservice.small_square.domain.util.DomainConstants;
 import small_square_microservice.small_square.domain.util.Paginated;
 
@@ -44,6 +41,10 @@ class OrderUseCaseTest {
 
     @Mock
     private IMessageFeignPersistencePort messageFeignPersistencePort;
+
+    @Mock
+    private IOrderStatusHistoryFeignPersistencePort orderStatusHistoryFeignPersistencePort;
+
 
     private Order order;
     private Restaurant restaurant;
@@ -257,7 +258,7 @@ class OrderUseCaseTest {
         assertNotNull(result);
         assertEquals(orderId, result.getId());
         assertEquals(employeeId, result.getChefId());
-        assertNotNull(result.getOrderPreparationDate());
+        assertNotNull(result.getDate());
 
         verify(authenticationSecurityPort, times(1)).getAuthenticatedUserId();
         verify(orderPersistencePort, times(1)).getOrderById(orderId);
@@ -362,7 +363,7 @@ class OrderUseCaseTest {
         MessageModel result = orderUseCase.orderReady(orderId);
 
         assertEquals(DomainConstants.STATUS_READY, mockOrder.getStatus());
-        assertNotNull(mockOrder.getOrderReadyDate());
+        assertNotNull(mockOrder.getDate());
         verify(orderPersistencePort,times(1)).updateOrder(mockOrder);
         verify(messageFeignPersistencePort,(times(1)))
                 .sendWhatsAppMessage(any(MessageModel.class));
@@ -385,42 +386,55 @@ class OrderUseCaseTest {
         Order result = orderUseCase.orderDelivery(orderId, securityCode);
 
         assertEquals(DomainConstants.STATUS_DELIVERY, result.getStatus());
-        assertNotNull(result.getOrderDeliveredDate());
+        assertNotNull(result.getDate());
 
         verify(orderPersistencePort, times(1)).getOrderById(orderId);
         verify(orderPersistencePort, times(1)).updateOrder(any(Order.class));
     }
 
     @Test
-    void cancelOrder_Success() {
+    void cancelOrder_ShouldSaveOrderStatusHistory_WhenCancellationIsSuccessful() {
         Long orderId = 1L;
         Long clientId = 10L;
-        Long restaurantId = 100L;
 
-        Restaurant mockRestaurant = new Restaurant();
-        mockRestaurant.setId(restaurantId);
+        order.setId(orderId);
+        order.setStatus(DomainConstants.STATUS_PENDING);
 
-        Order mockOrder = new Order();
-        mockOrder.setId(orderId);
-        mockOrder.setStatus(DomainConstants.STATUS_PENDING);
-        mockOrder.setRestaurant(mockRestaurant);
+        restaurant.setId(2L);
 
-        MessageModel expectedMessage = new MessageModel();
-        expectedMessage.setMessage("hola");
+        order.setRestaurant(restaurant);
 
-        when(orderPersistencePort.getOrderById(orderId)).thenReturn(mockOrder);
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(order);
         when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
-        when(restaurantPersistencePort.getRestaurantById(restaurantId)).thenReturn(mockRestaurant);
-        when(orderPersistencePort.isAnOrderInProcessPending(clientId, restaurantId)).thenReturn(true);
-        when(messageFeignPersistencePort.sendWhatsAppMessage(any(MessageModel.class)))
-                .thenReturn(expectedMessage);
+        when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
+        when(orderPersistencePort.isAnOrderInProcessPending(clientId, restaurant.getId())).thenReturn(true);
+        when(orderPersistencePort.updateOrder(any(Order.class))).thenReturn(order);
 
-        MessageModel result = orderUseCase.cancelOrder(orderId);
+        Order canceledOrder = orderUseCase.cancelOrder(orderId);
 
-        assertEquals(DomainConstants.STATUS_CANCELED, mockOrder.getStatus());
-        verify(orderPersistencePort, times(1)).updateOrder(mockOrder);
-        verify(messageFeignPersistencePort, times(1)).sendWhatsAppMessage(any(MessageModel.class));
-        assertEquals(expectedMessage.getMessage(), result.getMessage());
+        assertNotNull(canceledOrder);
+        assertEquals(DomainConstants.STATUS_CANCELED, canceledOrder.getStatus());
+        verify(orderPersistencePort).updateOrder(order);
+        verify(orderStatusHistoryFeignPersistencePort).saveOrderStatusHistory(eq(order), any(OrderStatusHistory.class));
     }
 
+    @Test
+    void cancelOrder_OrderNotInProgress_ShouldThrowException() {
+        Long orderId = 1L;
+        Long clientId = 10L;
+
+        order.setId(orderId);
+        order.setStatus(DomainConstants.STATUS_PENDING);
+
+        restaurant.setId(2L);
+
+        when(orderPersistencePort.getOrderById(orderId)).thenReturn(order);
+        when(authenticationSecurityPort.getAuthenticatedUserId()).thenReturn(clientId);
+        when(restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId())).thenReturn(restaurant);
+        when(orderPersistencePort.isAnOrderInProcessPending(clientId, restaurant.getId())).thenReturn(false);
+
+        assertThrows(OrderInProgressException.class, () -> orderUseCase.cancelOrder(orderId));
+    }
 }
+
+

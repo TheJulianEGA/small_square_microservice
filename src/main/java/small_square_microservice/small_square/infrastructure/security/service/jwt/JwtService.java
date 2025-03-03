@@ -37,4 +37,8 @@ public class JwtService implements IJwtService {
         return Jwts.parserBuilder().setSigningKey(generateKey()).build()
                 .parseClaimsJws(jwt).getBody();
     }
+
+    public String extractEmail(String jwt) {
+        return extractAllClaims(jwt).get(InfrastructureConstants.EMAIL).toString();
+    }
 }

@@ -4,4 +4,6 @@ public interface IAuthenticationSecurityPort {
 
     Long getAuthenticatedUserId();
 
+    String getAuthenticatedUserEmail();
+
 }

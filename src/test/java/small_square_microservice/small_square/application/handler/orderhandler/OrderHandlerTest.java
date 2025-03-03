@@ -158,18 +158,18 @@ class OrderHandlerTest {
     }
 
     @Test
-    void cancelOrder_ShouldReturnMessageResponse_WhenOrderIsCancelledSuccessfully() {
+    void cancelOrder_ShouldReturnOrderResponse_WhenOrderIsCancelledSuccessfully() {
         Long orderId = 1L;
 
-        when(orderServicePort.cancelOrder(orderId)).thenReturn(messageModel);
-        when(messageMapper.toResponse(messageModel)).thenReturn(messageResponse);
+        when(orderServicePort.cancelOrder(orderId)).thenReturn(order);
+        when(orderMapper.toResponse(order)).thenReturn(orderResponse);
 
-        MessageResponse result = orderHandler.cancelOrder(orderId);
+        OrderResponse result = orderHandler.cancelOrder(orderId);
 
         assertNotNull(result);
-        assertEquals(messageResponse.getMessage(), result.getMessage());
+        assertEquals(orderResponse, result);
         verify(orderServicePort, times(1)).cancelOrder(orderId);
-        verify(messageMapper, times(1)).toResponse(messageModel);
+        verify(orderMapper, times(1)).toResponse(order);
     }
 
 }

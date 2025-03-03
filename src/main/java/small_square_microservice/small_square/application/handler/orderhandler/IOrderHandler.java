@@ -17,5 +17,5 @@ public interface IOrderHandler {
 
     OrderResponse orderDelivery(Long orderId, SecurityCodeRequest securityCodeRequest);
 
-    MessageResponse cancelOrder(Long orderId);
+    OrderResponse cancelOrder(Long orderId);
 }

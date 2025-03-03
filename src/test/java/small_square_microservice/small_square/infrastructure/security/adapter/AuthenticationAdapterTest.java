@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import small_square_microservice.small_square.domain.exception.NoAuthenticatedUserIdFoundException;
-import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationAdapterTest {
 

@@ -6,11 +6,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import small_square_microservice.small_square.domain.exception.NoAuthenticatedUserIdFoundException;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
+import small_square_microservice.small_square.infrastructure.security.service.jwt.JwtService;
 import small_square_microservice.small_square.infrastructure.util.InfrastructureConstants;
 
 @RequiredArgsConstructor
 @Service
 public class AuthenticationAdapter implements IAuthenticationSecurityPort {
+
+    private final JwtService jwtService;
 
     @Override
     public Long getAuthenticatedUserId() {
@@ -23,6 +26,12 @@ public class AuthenticationAdapter implements IAuthenticationSecurityPort {
         } else {
             throw new NoAuthenticatedUserIdFoundException(InfrastructureConstants.NO_AUTHENTICATED_USER_ID_FOUND);
         }
+    }
+
+    @Override
+    public String getAuthenticatedUserEmail() {
+        String jwt = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        return jwtService.extractEmail(jwt);
     }
 
     private Long parseUserId(String userId) {

@@ -147,8 +147,8 @@ public class OrderController {
     })
     @PreAuthorize(InfrastructureConstants.ROLE_CUSTOMER)
     @PutMapping("/cancel_order/{orderId}")
-    public ResponseEntity<MessageResponse> cancelOrder(@PathVariable Long orderId) {
-        MessageResponse messageResponse = orderHandler.cancelOrder(orderId);
-        return ResponseEntity.ok(messageResponse);
+    public ResponseEntity<OrderResponse> cancelOrder(@PathVariable Long orderId) {
+        OrderResponse order = orderHandler.cancelOrder(orderId);
+        return ResponseEntity.ok(order);
     }
 }
