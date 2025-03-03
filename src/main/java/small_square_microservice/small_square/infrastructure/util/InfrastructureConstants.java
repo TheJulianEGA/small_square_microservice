@@ -24,7 +24,9 @@ public class InfrastructureConstants {
     public static final String STATUS_DELIVERY = "delivery";
     public static final String ORDER_NOT_FOUND = "The order not found";
     public static final String ERROR_CONVERTING_USER_ID = "Error converting user ID.";
-
+    public static final String TRACEABILITY_SERVICE_NAME = "traceability";
+    public static final String TRACEABILITY_SERVICE_URL ="http://localhost:8083" ;
+    public static final String EMAIL = "email";
 
 
     private InfrastructureConstants() {

@@ -146,13 +146,13 @@ class OrderControllerTest {
     void cancelOrder_ShouldReturnOk_WhenOrderIsCancelledSuccessfully() throws Exception {
         Long orderId = 1L;
 
-        when(orderHandler.cancelOrder(orderId)).thenReturn(messageResponse);
+        when(orderHandler.cancelOrder(orderId)).thenReturn(orderResponse);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/small_square/order/cancel_order/{orderId}", orderId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(messageResponse)));
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(orderResponse)));
 
         verify(orderHandler, times(1)).cancelOrder(orderId);
     }

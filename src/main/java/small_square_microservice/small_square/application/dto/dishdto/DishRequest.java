@@ -3,12 +3,15 @@ package small_square_microservice.small_square.application.dto.dishdto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import small_square_microservice.small_square.application.util.ApplicationConstants;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+
 public class DishRequest {
 
     @NotBlank(message = ApplicationConstants.NAME_NOT_BLANK)

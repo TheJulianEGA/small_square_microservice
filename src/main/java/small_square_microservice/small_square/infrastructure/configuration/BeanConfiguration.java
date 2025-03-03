@@ -49,12 +49,14 @@ public class BeanConfiguration {
             IRestaurantPersistencePort restaurantPersistencePort,
             IAuthenticationSecurityPort authenticationSecurityPort,
             IMessageFeignPersistencePort messageFeignPersistencePort,
-            IDishPersistencePort dishPersistencePort) {
+            IDishPersistencePort dishPersistencePort,
+            IOrderStatusHistoryFeignPersistencePort orderStatusHistoryFeignPersistencePort) {
         return new OrderUseCase(orderPersistencePort,
                 restaurantPersistencePort,
                 authenticationSecurityPort,
                 dishPersistencePort,
-                messageFeignPersistencePort
+                messageFeignPersistencePort,
+                orderStatusHistoryFeignPersistencePort
         );
     }
 

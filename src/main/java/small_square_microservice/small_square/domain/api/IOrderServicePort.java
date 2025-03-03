@@ -16,5 +16,5 @@ public interface IOrderServicePort {
 
     Order orderDelivery(Long orderId, Integer securityCode);
 
-    MessageModel cancelOrder(Long orderId);
+    Order cancelOrder(Long orderId);
 }

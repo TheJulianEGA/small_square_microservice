@@ -8,10 +8,7 @@ import small_square_microservice.small_square.domain.exception.notfound.OrderNot
 import small_square_microservice.small_square.domain.exception.notfound.RestaurantNotFoundException;
 import small_square_microservice.small_square.domain.model.*;
 import small_square_microservice.small_square.domain.security.IAuthenticationSecurityPort;
-import small_square_microservice.small_square.domain.spi.IDishPersistencePort;
-import small_square_microservice.small_square.domain.spi.IMessageFeignPersistencePort;
-import small_square_microservice.small_square.domain.spi.IOrderPersistencePort;
-import small_square_microservice.small_square.domain.spi.IRestaurantPersistencePort;
+import small_square_microservice.small_square.domain.spi.*;
 import small_square_microservice.small_square.domain.util.DomainConstants;
 import small_square_microservice.small_square.domain.util.Paginated;
 
@@ -28,6 +25,7 @@ public class OrderUseCase implements IOrderServicePort {
     private final IAuthenticationSecurityPort authenticationSecurityPort;
     private final IDishPersistencePort dishPersistencePort;
     private final IMessageFeignPersistencePort messageFeignPersistencePort;
+    private final IOrderStatusHistoryFeignPersistencePort orderStatusHistoryFeignPersistencePort;
 
     private static final Random RANDOM = new Random();
 
@@ -40,13 +38,22 @@ public class OrderUseCase implements IOrderServicePort {
         validateOrderDishes(order.getOrderDishes(), restaurant);
 
         order.setClientId(clientId);
-        order.setStatus(DomainConstants.STATUS_PENDING);
-        order.setOrderPendingDate(LocalDateTime.now());
+        order.setDate(LocalDateTime.now());
 
         int securityCode = generateSecurityCode();
         order.setSecurityCode(securityCode);
 
-        return orderPersistencePort.createOrder(order);
+        String email = authenticationSecurityPort.getAuthenticatedUserEmail();
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setCustomerMail(email);
+        orderStatusHistory.setPreviousState(order.getStatus());
+
+        order.setStatus(DomainConstants.STATUS_PENDING);
+
+        Order save = orderPersistencePort.createOrder(order);
+        orderStatusHistoryFeignPersistencePort.saveOrderStatusHistory(save,orderStatusHistory );
+
+        return save;
     }
 
     @Override
@@ -77,10 +84,19 @@ public class OrderUseCase implements IOrderServicePort {
         validateOrderNotAlreadyAssignedToEmployee(orderId, employeeId);
 
         order.setChefId(employeeId);
-        order.setOrderPreparationDate(LocalDateTime.now());
+        order.setDate(LocalDateTime.now());
+
+        String email = authenticationSecurityPort.getAuthenticatedUserEmail();
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setEmployeeMail(email);
+        orderStatusHistory.setPreviousState(order.getStatus());
+
         order.setStatus(DomainConstants.STATUS_IN_PREPARATION);
 
-        return orderPersistencePort.updateOrder(order);
+        Order update = orderPersistencePort.updateOrder(order);
+        orderStatusHistoryFeignPersistencePort.saveOrderStatusHistory(update,orderStatusHistory );
+
+        return update;
     }
 
     @Override
@@ -91,10 +107,17 @@ public class OrderUseCase implements IOrderServicePort {
         validateOrderBelongsToEmployeeRestaurant(order, employeeId);
         validateOrderStatusInPreparation(order);
 
-        order.setStatus(DomainConstants.STATUS_READY);
-        order.setOrderReadyDate(LocalDateTime.now());
+        order.setDate(LocalDateTime.now());
 
-        orderPersistencePort.updateOrder(order);
+        String email = authenticationSecurityPort.getAuthenticatedUserEmail();
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setEmployeeMail(email);
+        orderStatusHistory.setPreviousState(order.getStatus());
+
+        order.setStatus(DomainConstants.STATUS_READY);
+
+        Order update = orderPersistencePort.updateOrder(order);
+        orderStatusHistoryFeignPersistencePort.saveOrderStatusHistory(update,orderStatusHistory );
 
         String message = generateOrderReadyMessage(orderId, order.getSecurityCode());
 
@@ -113,13 +136,23 @@ public class OrderUseCase implements IOrderServicePort {
 
         validateSecurityCode(order,securityCode);
 
-        order.setOrderDeliveredDate(LocalDateTime.now());
+        order.setDate(LocalDateTime.now());
+
+        String email = authenticationSecurityPort.getAuthenticatedUserEmail();
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setEmployeeMail(email);
+        orderStatusHistory.setPreviousState(order.getStatus());
+
         order.setStatus(DomainConstants.STATUS_DELIVERY);
-        return orderPersistencePort.updateOrder(order);
+
+        Order update = orderPersistencePort.updateOrder(order);
+        orderStatusHistoryFeignPersistencePort.saveOrderStatusHistory(update,orderStatusHistory);
+
+        return update;
     }
 
     @Override
-    public MessageModel cancelOrder(Long orderId) {
+    public Order cancelOrder(Long orderId) {
         Order order = orderPersistencePort.getOrderById(orderId);
 
         Long clientId = authenticationSecurityPort.getAuthenticatedUserId();
@@ -127,15 +160,21 @@ public class OrderUseCase implements IOrderServicePort {
 
         validateOrderInProgress(clientId,restaurant.getId());
 
-        order.setStatus(DomainConstants.STATUS_CANCELED);
-        orderPersistencePort.updateOrder(order);
+        String email = authenticationSecurityPort.getAuthenticatedUserEmail();
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setEmployeeMail(email);
+        orderStatusHistory.setPreviousState(order.getStatus());
 
+        order.setStatus(DomainConstants.STATUS_CANCELED);
+
+        Order update = orderPersistencePort.updateOrder(order);
+        orderStatusHistoryFeignPersistencePort.saveOrderStatusHistory(update,orderStatusHistory);
         String message = generateOrderMessageCannotBeCancelled(orderId);
 
         MessageModel messageModel = new MessageModel();
         messageModel.setMessage(message);
 
-        return messageFeignPersistencePort.sendWhatsAppMessage(messageModel);
+        return update;
     }
 
     private void validateOrderInProgress(Long clientId, Long restaurantId) {

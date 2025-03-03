@@ -24,17 +24,8 @@ public class OrderEntity {
     @Column(name = "client_id", nullable = false)
     private Long clientId;
 
-    @Column(name = "order_pending_date", nullable = false)
-    private LocalDateTime orderPendingDate;
-
-    @Column(name = "order_preparation_date")
-    private LocalDateTime orderPreparationDate;
-
-    @Column(name = "order_ready_date")
-    private LocalDateTime orderReadyDate;
-
-    @Column(name = "order_delivered_date")
-    private LocalDateTime orderDeliveredDate;
+    @Column(name = "date", nullable = false)
+    private LocalDateTime date;
 
     @Column(name = "status", nullable = false)
     private String status;
